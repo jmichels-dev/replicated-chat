@@ -1,3 +1,5 @@
+import csv
+
 ## Used in client
 # TODO: Unit test
 def isValidUsername(username):
@@ -30,6 +32,8 @@ def addUser(username, clientDict):
                       "try again with a different username.\n")
     # If username is valid, create new user in userDict
     clientDict[username] = [True, []]
+    operation = ['ADD', str(username)]
+    logOp(operation)
     return (False, "")
 
 # Sign in to existing account. Returns (errorFlag, message).
@@ -44,6 +48,8 @@ def signInExisting(username, clientDict):
         # Set user as logged in and update socket object
         else:
             userAttributes[0] = True
+            operation = ["LOGIN", str(username)]
+            logOp(operation)
     except:
         # If account does not exist
         return (True, "No users exist with this username. Please double check that you typed correctly " +
@@ -78,6 +84,8 @@ def sendMsg(sender, recipient, message, clientDict):
 
         # Enqueue the message
         clientDict[recipient][1].append(recipientMsg)
+        operation = ["SEND", sender, message, recipient]
+        logOp(operation)
         return senderNote
     except:
         error_handle += "Recipient connection error"
@@ -85,7 +93,9 @@ def sendMsg(sender, recipient, message, clientDict):
     
 def sendUserlist(wildcard, clientDict):
     allUsers, matches = list(clientDict.keys()), list(clientDict.keys())
-
+    operation = ["LIST", wildcard]
+    logOp(operation)
+    
     # return list of qualifying users
     if "*" in wildcard:
         starIdx = wildcard.find("*")
@@ -119,3 +129,12 @@ def sendUserlist(wildcard, clientDict):
         userListMsg += user + "\n"
     userListMsg += "---------------\n"
     return userListMsg
+
+def logOp(op):
+    with open('commit_log.csv', 'w', newline = '') as commitlog:
+        rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
+        rowwriter.writerow(op)
+
+def resetCommitLog(filename):
+    f = open(filename, "w+")
+    f.close()

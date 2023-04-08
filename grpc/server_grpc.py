@@ -67,7 +67,7 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
 
 def serve():
-    ip = '10.148.151.210'
+    ip = '10.250.226.222'
     port = '8080'
 
     # Create a lock for thread synchronization
@@ -91,6 +91,7 @@ def snapshot(servicer_instance):
     while True:
         if time.time() - SERVER_TIME > SNAPSHOT_INTERVAL:
             servicer_instance.Snapshot()
+            helpers_grpc.resetCommitLog()
             SERVER_TIME = time.time()
 
 
