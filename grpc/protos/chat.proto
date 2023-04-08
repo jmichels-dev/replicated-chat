@@ -1,12 +1,9 @@
 syntax = "proto3";
 
-// Interface exported by the server.
 service Chat {
-    // A simple RPC.
-    //
-    // Signs in existing user and gets unread messages.
+    // Signs in existing user and gets unread messages
     rpc SignInExisting(Username) returns (Unreads) {}
-    // Signs in new user and gets unread messages.
+    // Signs in new user and gets unread messages
     rpc AddUser(Username) returns (Unreads) {}
     // Sends message to recipient with Username
     rpc Send(SendRequest) returns (Payload) {}
@@ -18,6 +15,10 @@ service Chat {
     rpc Logout(Username) returns (Payload) {}
     // Deletes user and returns a confirmation response message
     rpc Delete(Username) returns (Payload) {}
+
+    // Periodic messages from primary server to each backup server to 
+    // determine if primary server has failed
+    rpc KeepAlives(Username) returns (stream Alive) {}
 }
 
 message Username {
@@ -45,3 +46,13 @@ message SendRequest {
     Payload sentMsg = 3;
 }
 
+// Request from backup server to initiate stream of periodic Alive responses 
+// from primary server
+message AliveRequest {
+    string init = 1;
+}
+
+// Confirmation that primary server has not failed
+message Alive {
+    bool isAlive = 1;
+}
