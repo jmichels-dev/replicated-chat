@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-package chat;
-
 // Interface exported by the server.
 service Chat {
     // A simple RPC.
