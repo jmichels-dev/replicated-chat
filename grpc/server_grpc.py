@@ -9,13 +9,9 @@ import grpc
 import chat_pb2
 import chat_pb2_grpc
 import helpers_grpc
-
+import constants
 
 SNAPSHOT_INTERVAL = 5 # seconds
-# Primary server at IP_PORT_DICT[0], backup servers at IP_PORT_DICT[1] and IP_PORT_DICT[2]
-IP0 = '10.250.64.41'
-IP1 = '10.250.226.222'
-IP_PORT_DICT = {0 : [IP0, '8080'], 1 : [IP0, '8081'], 2 : [IP1, '8082']}
 
 class ChatServicer(chat_pb2_grpc.ChatServicer):
 
@@ -72,8 +68,8 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
 # server_ids 0, 1, 2 signify primary, first backup, and second backup, respectively
 def serve(server_id):
-    ip = IP_PORT_DICT[server_id][0]
-    port = IP_PORT_DICT[server_id][1]
+    ip = constants.IP_PORT_DICT[server_id][0]
+    port = constants.IP_PORT_DICT[server_id][1]
 
     # Create a lock for thread synchronization
     servicer_lock = threading.Lock()

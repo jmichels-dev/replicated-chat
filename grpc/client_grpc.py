@@ -7,6 +7,7 @@ import grpc
 import chat_pb2
 import chat_pb2_grpc
 import helpers_grpc
+import constants
 
 # Loops until a valid sign in. Returns username of signed in user.
 def signinLoop(stub):
@@ -112,9 +113,10 @@ def listen_thread(username, stub, responseStream):
         except:
             return
 
-def run():
-    ip = '10.250.226.222'
-    port = '8080'
+def run(server_id):
+    ip = constants.IP_PORT_DICT[server_id][0]
+    port = constants.IP_PORT_DICT[server_id][1]
+
     with grpc.insecure_channel('{}:{}'.format(ip, port)) as channel:
         stub = chat_pb2_grpc.ChatStub(channel)
         print("Congratulations! You have connected to the chat server.\n")
@@ -141,4 +143,9 @@ def run():
 
 if __name__ == '__main__':
     logging.basicConfig()
-    run()
+    # Checks for correct number of args
+    if len(sys.argv) != 2:
+        print("Correct usage: script, server_id (0 = primary, 1 = backup1, 2 = backup2)")
+        exit()
+    server_id = int(sys.argv[1])
+    run(server_id)
