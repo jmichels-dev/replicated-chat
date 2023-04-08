@@ -14,10 +14,13 @@ SNAPSHOT_INTERVAL = 5 # seconds
 
 class ChatServicer(chat_pb2_grpc.ChatServicer):
 
-    def __init__(self):
+    def __init__(self, servicer_lock):
+        super(ChatServicer, self).__init__()
         # {username : [loggedOnBool, [messageQueue]]}
         #self.clientDict = {}
         self.clientDict = {'test1': [True, ["hello1", "hello2"]]}
+        # Thread synchronization for snapshotting
+        self.servicer_lock = servicer_lock
 
     def SignInExisting(self, username, context):
         eFlag, msg = helpers_grpc.signInExisting(username.name, self.clientDict)
@@ -55,39 +58,42 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
         self.clientDict.pop(username.name)
         return chat_pb2.Payload(msg="Goodbye!\n")
     
+    # Non-RPC server-side snapshots
     def Snapshot(self):
         with open('test.csv', 'w', newline = '') as testfile:
-                rowwriter = csv.writer(testfile, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
-                for key, val in self.clientDict:
-                    rowwriter.writerow([key] + val)
+            rowwriter = csv.writer(testfile, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
+            for key in self.clientDict:
+                rowwriter.writerow([key] + self.clientDict[key])
 
 
 def serve():
-    ip = '10.250.226.222'
+    ip = '10.148.151.210'
     port = '8080'
+
+    # Create a lock for thread synchronization
+    servicer_lock = threading.Lock()
+    servicer = ChatServicer(servicer_lock)
+
+    # Start snapshot thread for snapshotting state and pass the servicer lock
+    snapshot_thread = threading.Thread(target=snapshot, args=(servicer,), daemon=True)
+    snapshot_thread.start()
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    chat_pb2_grpc.add_ChatServicer_to_server(ChatServicer(), server)
+    chat_pb2_grpc.add_ChatServicer_to_server(servicer, server)
     server.add_insecure_port(f"{ip}:{port}")
     server.start()
     print("Server started, listening on " + port)
     server.wait_for_termination()
-
-
-def snapshot():
+    
+def snapshot(servicer_instance):
     print("inside snapshot")
-    print(ChatServicer)
     SERVER_TIME = time.time()
     while True:
         if time.time() - SERVER_TIME > SNAPSHOT_INTERVAL:
-            ChatServicer.Snapshot(self=ChatServicer)
+            servicer_instance.Snapshot()
             SERVER_TIME = time.time()
-    
-
 
 
 if __name__ == '__main__':
     logging.basicConfig()
-    # spin off thread for snapshotting state
-    snapshot_thread = threading.Thread(target=snapshot, args=(), daemon=True)
-    snapshot_thread.start()
     serve()
