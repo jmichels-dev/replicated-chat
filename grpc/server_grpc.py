@@ -1,3 +1,4 @@
+import sys
 from concurrent import futures
 import logging
 import time
@@ -10,7 +11,11 @@ import chat_pb2_grpc
 import helpers_grpc
 
 
-SNAPSHOT_INTERVAL = 30 # seconds
+SNAPSHOT_INTERVAL = 5 # seconds
+# Primary server is IP_PORT_DICT[0], backup servers are IP_PORT_DICT[1] and IP_PORT_DICT[2]
+IP0 = '10.250.64.41'
+IP1 = '10.250.226.222'
+IP_PORT_DICT = {0 : [IP0, '8080'], 1 : [IP0, '8081'], 2 : [IP1, '8082']}
 
 class ChatServicer(chat_pb2_grpc.ChatServicer):
 
@@ -65,9 +70,10 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
             for key in self.clientDict:
                 rowwriter.writerow([key] + self.clientDict[key])
 
-def serve():
-    ip = '10.250.226.222'
-    port = '8080'
+# server_ids 0, 1, 2 signify primary, first backup, and second backup, respectively
+def serve(server_id):
+    ip = IP_PORT_DICT[server_id][0]
+    port = IP_PORT_DICT[server_id][1]
 
     # Create a lock for thread synchronization
     servicer_lock = threading.Lock()
@@ -96,4 +102,9 @@ def snapshot(servicer_instance):
 
 if __name__ == '__main__':
     logging.basicConfig()
-    serve()
+    # Checks for correct number of args
+    if len(sys.argv) != 2:
+        print("Correct usage: script, server_id (0 = primary, 1 = backup1, 2 = backup2)")
+        exit()
+    server_id = int(sys.argv[1])
+    serve(server_id)
