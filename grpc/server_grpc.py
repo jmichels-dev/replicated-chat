@@ -17,8 +17,8 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
     def __init__(self, servicer_lock):
         super(ChatServicer, self).__init__()
         # {username : [loggedOnBool, [messageQueue]]}
-        #self.clientDict = {}
-        self.clientDict = {'test1': [True, ["hello1", "hello2"]]}
+        self.clientDict = {}
+        #self.clientDict = {'test1': [True, ["hello1", "hello2"]]}
         # Thread synchronization for snapshotting
         self.servicer_lock = servicer_lock
 
