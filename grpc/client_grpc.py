@@ -113,7 +113,7 @@ def listen_thread(username, stub, responseStream):
             return
 
 def run():
-    ip = '10.250.31.89'
+    ip = '10.250.226.222'
     port = '8080'
     with grpc.insecure_channel('{}:{}'.format(ip, port)) as channel:
         stub = chat_pb2_grpc.ChatStub(channel)

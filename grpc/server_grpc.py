@@ -10,7 +10,7 @@ import chat_pb2_grpc
 import helpers_grpc
 
 
-SNAPSHOT_INTERVAL = 5 # seconds
+SNAPSHOT_INTERVAL = 30 # seconds
 
 class ChatServicer(chat_pb2_grpc.ChatServicer):
 
@@ -60,11 +60,10 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
     
     # Non-RPC server-side snapshots
     def Snapshot(self):
-        with open('test.csv', 'w', newline = '') as testfile:
+        with open('snapshot.csv', 'w', newline = '') as testfile:
             rowwriter = csv.writer(testfile, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
             for key in self.clientDict:
                 rowwriter.writerow([key] + self.clientDict[key])
-
 
 def serve():
     ip = '10.250.226.222'
@@ -91,7 +90,7 @@ def snapshot(servicer_instance):
     while True:
         if time.time() - SERVER_TIME > SNAPSHOT_INTERVAL:
             servicer_instance.Snapshot()
-            helpers_grpc.resetCommitLog()
+            helpers_grpc.resetCommitLog('commit_log.csv')
             SERVER_TIME = time.time()
 
 

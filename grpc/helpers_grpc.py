@@ -95,7 +95,7 @@ def sendUserlist(wildcard, clientDict):
     allUsers, matches = list(clientDict.keys()), list(clientDict.keys())
     operation = ["LIST", wildcard]
     logOp(operation)
-    
+
     # return list of qualifying users
     if "*" in wildcard:
         starIdx = wildcard.find("*")
@@ -131,7 +131,7 @@ def sendUserlist(wildcard, clientDict):
     return userListMsg
 
 def logOp(op):
-    with open('commit_log.csv', 'w', newline = '') as commitlog:
+    with open('commit_log.csv', 'a', newline = '') as commitlog:
         rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
         rowwriter.writerow(op)
 
