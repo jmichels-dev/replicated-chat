@@ -23,7 +23,7 @@ def keepalive_listen(responseStream, this_backup_id):
         except Exception as e:
             print("Error in heartbeat from primary:", e)
             # Failstop by setting lower backup_id as new primary
-            print("backup_ids:," backup_ids)
+            print("backup_ids:", backup_ids)
             if len(backup_ids) > 0:
                 new_primary_id = min(backup_ids)
                 if new_primary_id == this_backup_id:
