@@ -71,10 +71,17 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
         while True:
             try:
+                # Recieve heartbeat from backup
                 requestKeepAlive = next(backupStream)
                 this_backup_id = requestKeepAlive.backup_id
                 print("Received heartbeat from backup at server_id", this_backup_id)
                 self.backup_server_ids.add(this_backup_id)
+
+                # Send heartbeat to backup
+                # with open('snapshot.csv', newline = '') as testfile:
+                #     rowreader = csv.reader(testfile, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
+                #     for row in rowreader:
+                #         rowwriter.writerow([key] + self.clientDict[key])
                 yield chat_pb2.KeepAliveResponse(primary_id=self.server_id, backup_ids=list(self.backup_servers))
                 time.sleep(HEARTBEAT_INTERVAL)
             except Exception as e:

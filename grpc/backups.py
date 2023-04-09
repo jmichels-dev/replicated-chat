@@ -10,7 +10,7 @@ import constants
 import primary
 
 # Listens for messages from primary server's KeepAlive response stream
-def keepalive_listen(responseStream):
+def keepalive_listen(responseStream, this_backup_id):
     primary_id = -1
     backup_ids = []
     while True:
@@ -23,12 +23,14 @@ def keepalive_listen(responseStream):
         except Exception as e:
             print("Error in heartbeat from primary:", e)
             # Failstop by setting lower backup_id as new primary
-            if len(backup_ids) == 2:
-                pass
+            new_primary_id = min(backup_ids)
+            if new_primary_id == this_backup_id:
+                primary.serve(new_primary_id)
+                sys.exit()
             return
 
-def send_backup_heartbeats(server_id):
-    keep_alive_request = chat_pb2.KeepAliveRequest(backup_id=server_id)
+def send_backup_heartbeats(this_backup_id):
+    keep_alive_request = chat_pb2.KeepAliveRequest(backup_id=this_backup_id)
     while True:
         yield keep_alive_request
         time.sleep(primary.HEARTBEAT_INTERVAL)
@@ -51,7 +53,7 @@ def run(server_id, client_id):
         while True:
             requestStream = send_backup_heartbeats(server_id)
             responseStream = stub.Heartbeats(requestStream)
-            keepalive_listen(responseStream)
+            keepalive_listen(responseStream, server_id)
             time.sleep(10)
             
 
