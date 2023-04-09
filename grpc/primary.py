@@ -17,14 +17,13 @@ HEARTBEAT_INTERVAL = 5
 
 class ChatServicer(chat_pb2_grpc.ChatServicer):
 
-    def __init__(self, ip, port, servicer_lock):
+    def __init__(self, server_id, servicer_lock):
         super(ChatServicer, self).__init__()
-        self.ip = ip
-        self.port = port
+        self.server_id = server_id
         # {username : [loggedOnBool, [messageQueue]]}
         self.clientDict = {}
         #self.clientDict = {'test1': [True, ["hello1", "hello2"]]}
-        self.backup_servers = []
+        self.backup_servers = set()
         # Thread synchronization for snapshotting
         self.servicer_lock = servicer_lock
 
@@ -67,20 +66,21 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
     ## Replication RPCs
     def Heartbeats(self, backupStream, context):
-        # Add the connected backup server to the list
-        self.backup_servers.append(context.peer())
-        print("Backup server connected. Existing backup servers:", self.backup_servers)
+        print("Before new connection, existing backup servers:", self.backup_servers)
+        this_backup_id = -1
 
         while True:
             try:
                 requestKeepAlive = next(backupStream)
-                print("Received heartbeat from backup at", requestKeepAlive.port)
-                yield chat_pb2.KeepAlive(ip=self.ip, port=self.port)
+                this_backup_id = requestKeepAlive.backup_id
+                print("Received heartbeat from backup at server_id", this_backup_id)
+                self.backup_server_ids.add(this_backup_id)
+                yield chat_pb2.KeepAliveResponse(primary_id=self.server_id, backup_ids=list(self.backup_servers))
                 time.sleep(HEARTBEAT_INTERVAL)
             except Exception as e:
                 print("Error in heartbeat from backup:", e)
-                self.backup_servers.remove(context.peer())
-                print("Existing backup servers:", self.backup_servers)
+                self.backup_servers.remove(this_backup_id)
+                print("Remaining backup servers:", self.backup_servers)
                 break
 
     ## Non-RPC server-side snapshots
@@ -97,7 +97,7 @@ def serve(server_id):
 
     # Create a lock for thread synchronization
     servicer_lock = threading.Lock()
-    servicer = ChatServicer(ip, port, servicer_lock)
+    servicer = ChatServicer(server_id, servicer_lock)
 
     # Start snapshot thread for snapshotting state and pass the servicer lock
     snapshot_thread = threading.Thread(target=snapshot, args=(servicer,), daemon=True)
@@ -123,5 +123,5 @@ def snapshot(servicer_instance):
 if __name__ == '__main__':
     logging.basicConfig()
     serve(0)
-    # backups.run(1, constants.IP_PORT_DICT[0][0], constants.IP_PORT_DICT[0][1])
-    # backups.run(2, constants.IP_PORT_DICT[0][0], constants.IP_PORT_DICT[0][1])
+    # backups.run(1, 0)
+    # backups.run(2, 0)
