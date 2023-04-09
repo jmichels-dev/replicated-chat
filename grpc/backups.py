@@ -28,6 +28,8 @@ def keepalive_listen(responseStream, this_backup_id):
                 if new_primary_id == this_backup_id:
                     primary.serve(new_primary_id)
                     sys.exit()
+                else:
+                    run(this_backup_id, new_primary_id)
             else:
                 print("backup_ids empty")
             return
