@@ -23,6 +23,7 @@ def keepalive_listen(responseStream, this_backup_id):
         except Exception as e:
             print("Error in heartbeat from primary:", e)
             # Failstop by setting lower backup_id as new primary
+            print("backup_ids:," backup_ids)
             if len(backup_ids) > 0:
                 new_primary_id = min(backup_ids)
                 if new_primary_id == this_backup_id:
@@ -66,7 +67,8 @@ def run(server_id, client_id):
 if __name__ == '__main__':
     # Checks for correct number of args
     if len(sys.argv) != 2:
-        print("Correct usage: script, server_id (0 = primary, 1 = backup1, 2 = backup2)")
+        print("Correct usage: script, server_id (0 = primary, 1 = backup1, 2 = backup2), client_id")
         exit()
     server_id = int(sys.argv[1])
-    run(server_id, 0)
+    client_id = int(sys.argv[2])
+    run(server_id, client_id)
