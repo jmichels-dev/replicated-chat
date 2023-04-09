@@ -143,4 +143,4 @@ def run(server_id):
 
 if __name__ == '__main__':
     logging.basicConfig()
-    run(0)
+    run(2)

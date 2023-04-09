@@ -130,9 +130,12 @@ def loadSnapshot(filename, clientDict):
     with open(filename, newline='') as snapshot:
         rowreader = csv.reader(snapshot, delimiter=" ", quotechar="|")
         for row in rowreader:
+            temp = row[2].strip('][').split(', ')
+            for i in range(len(temp)):
+                temp[i] = temp[i].replace("'", '')
             # False since if server crashes, users will be disconnected regardless of connection status at crash time
             # issues with row[2], treats each char in row[2] as separate message
-            clientDict[row[0]] = [False, row[2]]
+            clientDict[row[0]] = [False, temp]
     print("snapshot loaded: \n")
     print(clientDict)
     
@@ -148,6 +151,6 @@ def snapshot(servicer_instance):
 
 if __name__ == '__main__':
     logging.basicConfig()
-    serve(0)
+    serve(2)
     # backups.run(1, 0)
     # backups.run(2, 0)
