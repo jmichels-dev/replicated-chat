@@ -133,6 +133,7 @@ def loadSnapshot(filename, clientDict):
             temp = row[2].strip('][').split(', ')
             for i in range(len(temp)):
                 temp[i] = temp[i].replace("'", '')
+                temp[i] = temp[i][2:-2]
             # False since if server crashes, users will be disconnected regardless of connection status at crash time
             # issues with row[2], treats each char in row[2] as separate message
             clientDict[row[0]] = [False, temp]
