@@ -66,7 +66,7 @@ def run(server_id, client_id):
 
 if __name__ == '__main__':
     # Checks for correct number of args
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print("Correct usage: script, server_id (0 = primary, 1 = backup1, 2 = backup2), client_id")
         exit()
     server_id = int(sys.argv[1])
