@@ -131,17 +131,18 @@ def loadSnapshot(filename, clientDict):
         rowreader = csv.reader(snapshot, delimiter=" ", quotechar="|")
         for row in rowreader:
             temp = row[2].strip('][').split(', ')
-            for i in range(len(temp)):
-                temp[i] = temp[i].replace("'", '')
-                temp[i] = temp[i][2:-2]
-            # False since if server crashes, users will be disconnected regardless of connection status at crash time
-            # issues with row[2], treats each char in row[2] as separate message
-            clientDict[row[0]] = [False, temp]
+            if temp != ['']:
+                for i in range(len(temp)):
+                    temp[i] = temp[i].replace("'", '')
+                    temp[i] = temp[i][2:-2]
+                # False since if server crashes, users will be disconnected regardless of connection status at crash time
+                clientDict[row[0]] = [False, temp]
+            else:
+                clientDict[row[0]] = [False, []]
     print("snapshot loaded: \n")
     print(clientDict)
     
 def snapshot(servicer_instance):
-    print("inside snapshot")
     server_time = time.time()
     while True:
         if time.time() - server_time > SNAPSHOT_INTERVAL:
