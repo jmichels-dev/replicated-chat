@@ -69,6 +69,7 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
     def Heartbeats(self, backupStream, context):
         # Add the connected backup server to the list
         self.backup_servers.append(context.peer())
+        print("Backup server connected. Existing backup servers:", self.backup_servers)
 
         while True:
             try:
