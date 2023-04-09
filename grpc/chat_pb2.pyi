@@ -4,6 +4,14 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class KeepAlive(_message.Message):
+    __slots__ = ["ip", "port"]
+    IP_FIELD_NUMBER: _ClassVar[int]
+    PORT_FIELD_NUMBER: _ClassVar[int]
+    ip: str
+    port: str
+    def __init__(self, ip: _Optional[str] = ..., port: _Optional[str] = ...) -> None: ...
+
 class Payload(_message.Message):
     __slots__ = ["msg"]
     MSG_FIELD_NUMBER: _ClassVar[int]

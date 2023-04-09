@@ -120,5 +120,5 @@ def snapshot(servicer_instance):
 if __name__ == '__main__':
     logging.basicConfig()
     serve(0)
-    backups.run(1, constants.IP_PORT_DICT[0][0], constants.IP_PORT_DICT[0][1])
-    backups.run(2, constants.IP_PORT_DICT[0][0], constants.IP_PORT_DICT[0][1])
+    # backups.run(1, constants.IP_PORT_DICT[0][0], constants.IP_PORT_DICT[0][1])
+    # backups.run(2, constants.IP_PORT_DICT[0][0], constants.IP_PORT_DICT[0][1])

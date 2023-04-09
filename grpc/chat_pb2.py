@@ -13,21 +13,23 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\x12\x04\x63hat\"\x18\n\x08Username\x12\x0c\n\x04name\x18\x01 \x01(\t\"-\n\x07Unreads\x12\x11\n\terrorFlag\x18\x01 \x01(\x08\x12\x0f\n\x07unreads\x18\x02 \x01(\t\"\x16\n\x07Payload\x12\x0b\n\x03msg\x18\x01 \x01(\t\"p\n\x0bSendRequest\x12\x1e\n\x06sender\x18\x01 \x01(\x0b\x32\x0e.chat.Username\x12!\n\trecipient\x18\x02 \x01(\x0b\x32\x0e.chat.Username\x12\x1e\n\x07sentMsg\x18\x03 \x01(\x0b\x32\r.chat.Payload2\xbc\x02\n\x04\x43hat\x12\x31\n\x0eSignInExisting\x12\x0e.chat.Username\x1a\r.chat.Unreads\"\x00\x12*\n\x07\x41\x64\x64User\x12\x0e.chat.Username\x1a\r.chat.Unreads\"\x00\x12*\n\x04Send\x12\x11.chat.SendRequest\x1a\r.chat.Payload\"\x00\x12+\n\x06Listen\x12\x0e.chat.Username\x1a\r.chat.Payload\"\x00\x30\x01\x12&\n\x04List\x12\r.chat.Payload\x1a\r.chat.Payload\"\x00\x12)\n\x06Logout\x12\x0e.chat.Username\x1a\r.chat.Payload\"\x00\x12)\n\x06\x44\x65lete\x12\x0e.chat.Username\x1a\r.chat.Payload\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\"\x18\n\x08Username\x12\x0c\n\x04name\x18\x01 \x01(\t\"-\n\x07Unreads\x12\x11\n\terrorFlag\x18\x01 \x01(\x08\x12\x0f\n\x07unreads\x18\x02 \x01(\t\"\x16\n\x07Payload\x12\x0b\n\x03msg\x18\x01 \x01(\t\"a\n\x0bSendRequest\x12\x19\n\x06sender\x18\x01 \x01(\x0b\x32\t.Username\x12\x1c\n\trecipient\x18\x02 \x01(\x0b\x32\t.Username\x12\x19\n\x07sentMsg\x18\x03 \x01(\x0b\x32\x08.Payload\"%\n\tKeepAlive\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\t2\xa2\x02\n\x04\x43hat\x12\'\n\x0eSignInExisting\x12\t.Username\x1a\x08.Unreads\"\x00\x12 \n\x07\x41\x64\x64User\x12\t.Username\x1a\x08.Unreads\"\x00\x12 \n\x04Send\x12\x0c.SendRequest\x1a\x08.Payload\"\x00\x12!\n\x06Listen\x12\t.Username\x1a\x08.Payload\"\x00\x30\x01\x12\x1c\n\x04List\x12\x08.Payload\x1a\x08.Payload\"\x00\x12\x1f\n\x06Logout\x12\t.Username\x1a\x08.Payload\"\x00\x12\x1f\n\x06\x44\x65lete\x12\t.Username\x1a\x08.Payload\"\x00\x12*\n\nHeartbeats\x12\n.KeepAlive\x1a\n.KeepAlive\"\x00(\x01\x30\x01\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chat_pb2', globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _USERNAME._serialized_start=20
-  _USERNAME._serialized_end=44
-  _UNREADS._serialized_start=46
-  _UNREADS._serialized_end=91
-  _PAYLOAD._serialized_start=93
-  _PAYLOAD._serialized_end=115
-  _SENDREQUEST._serialized_start=117
-  _SENDREQUEST._serialized_end=229
-  _CHAT._serialized_start=232
-  _CHAT._serialized_end=548
+  _USERNAME._serialized_start=14
+  _USERNAME._serialized_end=38
+  _UNREADS._serialized_start=40
+  _UNREADS._serialized_end=85
+  _PAYLOAD._serialized_start=87
+  _PAYLOAD._serialized_end=109
+  _SENDREQUEST._serialized_start=111
+  _SENDREQUEST._serialized_end=208
+  _KEEPALIVE._serialized_start=210
+  _KEEPALIVE._serialized_end=247
+  _CHAT._serialized_start=250
+  _CHAT._serialized_end=540
 # @@protoc_insertion_point(module_scope)

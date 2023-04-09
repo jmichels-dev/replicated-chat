@@ -10,7 +10,7 @@ import constants
 import primary
 
 # Listens for messages from primary server's KeepAlive response stream
-def keepalive_listen(ip, port, responseStream):
+def keepalive_listen(responseStream):
     while True:
         try:
             response = next(responseStream)
@@ -42,14 +42,13 @@ def run(server_id, client_ip, client_port):
         # requestStream and responseStream are generators of chat_pb2.KeepAlive objects.
         requestStream = send_backup_heartbeats(server_ip, server_port)
         responseStream = stub.Heartbeats(requestStream)
-        start_new_thread(keepalive_listen, (responseStream))
+        start_new_thread(keepalive_listen, (responseStream,))
 
 
 if __name__ == '__main__':
-    logging.basicConfig()
     # Checks for correct number of args
     if len(sys.argv) != 2:
         print("Correct usage: script, server_id (0 = primary, 1 = backup1, 2 = backup2)")
         exit()
     server_id = int(sys.argv[1])
-    run(server_id)
+    run(server_id, constants.IP_PORT_DICT[0][0], constants.IP_PORT_DICT[0][1])

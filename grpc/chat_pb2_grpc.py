@@ -6,8 +6,7 @@ import chat_pb2 as chat__pb2
 
 
 class ChatStub(object):
-    """Interface exported by the server.
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -16,57 +15,59 @@ class ChatStub(object):
             channel: A grpc.Channel.
         """
         self.SignInExisting = channel.unary_unary(
-                '/chat.Chat/SignInExisting',
+                '/Chat/SignInExisting',
                 request_serializer=chat__pb2.Username.SerializeToString,
                 response_deserializer=chat__pb2.Unreads.FromString,
                 )
         self.AddUser = channel.unary_unary(
-                '/chat.Chat/AddUser',
+                '/Chat/AddUser',
                 request_serializer=chat__pb2.Username.SerializeToString,
                 response_deserializer=chat__pb2.Unreads.FromString,
                 )
         self.Send = channel.unary_unary(
-                '/chat.Chat/Send',
+                '/Chat/Send',
                 request_serializer=chat__pb2.SendRequest.SerializeToString,
                 response_deserializer=chat__pb2.Payload.FromString,
                 )
         self.Listen = channel.unary_stream(
-                '/chat.Chat/Listen',
+                '/Chat/Listen',
                 request_serializer=chat__pb2.Username.SerializeToString,
                 response_deserializer=chat__pb2.Payload.FromString,
                 )
         self.List = channel.unary_unary(
-                '/chat.Chat/List',
+                '/Chat/List',
                 request_serializer=chat__pb2.Payload.SerializeToString,
                 response_deserializer=chat__pb2.Payload.FromString,
                 )
         self.Logout = channel.unary_unary(
-                '/chat.Chat/Logout',
+                '/Chat/Logout',
                 request_serializer=chat__pb2.Username.SerializeToString,
                 response_deserializer=chat__pb2.Payload.FromString,
                 )
         self.Delete = channel.unary_unary(
-                '/chat.Chat/Delete',
+                '/Chat/Delete',
                 request_serializer=chat__pb2.Username.SerializeToString,
                 response_deserializer=chat__pb2.Payload.FromString,
+                )
+        self.Heartbeats = channel.stream_stream(
+                '/Chat/Heartbeats',
+                request_serializer=chat__pb2.KeepAlive.SerializeToString,
+                response_deserializer=chat__pb2.KeepAlive.FromString,
                 )
 
 
 class ChatServicer(object):
-    """Interface exported by the server.
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def SignInExisting(self, request, context):
-        """A simple RPC.
-
-        Signs in existing user and gets unread messages.
+        """Signs in existing user and gets unread messages
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def AddUser(self, request, context):
-        """Signs in new user and gets unread messages.
+        """Signs in new user and gets unread messages
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -102,6 +103,14 @@ class ChatServicer(object):
 
     def Delete(self, request, context):
         """Deletes user and returns a confirmation response message
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Heartbeats(self, request_iterator, context):
+        """Periodic messages from primary server to each backup server to 
+        determine if primary server or backup servers have failed
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -145,16 +154,20 @@ def add_ChatServicer_to_server(servicer, server):
                     request_deserializer=chat__pb2.Username.FromString,
                     response_serializer=chat__pb2.Payload.SerializeToString,
             ),
+            'Heartbeats': grpc.stream_stream_rpc_method_handler(
+                    servicer.Heartbeats,
+                    request_deserializer=chat__pb2.KeepAlive.FromString,
+                    response_serializer=chat__pb2.KeepAlive.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'chat.Chat', rpc_method_handlers)
+            'Chat', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
 class Chat(object):
-    """Interface exported by the server.
-    """
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def SignInExisting(request,
@@ -167,7 +180,7 @@ class Chat(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/chat.Chat/SignInExisting',
+        return grpc.experimental.unary_unary(request, target, '/Chat/SignInExisting',
             chat__pb2.Username.SerializeToString,
             chat__pb2.Unreads.FromString,
             options, channel_credentials,
@@ -184,7 +197,7 @@ class Chat(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/chat.Chat/AddUser',
+        return grpc.experimental.unary_unary(request, target, '/Chat/AddUser',
             chat__pb2.Username.SerializeToString,
             chat__pb2.Unreads.FromString,
             options, channel_credentials,
@@ -201,7 +214,7 @@ class Chat(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/chat.Chat/Send',
+        return grpc.experimental.unary_unary(request, target, '/Chat/Send',
             chat__pb2.SendRequest.SerializeToString,
             chat__pb2.Payload.FromString,
             options, channel_credentials,
@@ -218,7 +231,7 @@ class Chat(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/chat.Chat/Listen',
+        return grpc.experimental.unary_stream(request, target, '/Chat/Listen',
             chat__pb2.Username.SerializeToString,
             chat__pb2.Payload.FromString,
             options, channel_credentials,
@@ -235,7 +248,7 @@ class Chat(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/chat.Chat/List',
+        return grpc.experimental.unary_unary(request, target, '/Chat/List',
             chat__pb2.Payload.SerializeToString,
             chat__pb2.Payload.FromString,
             options, channel_credentials,
@@ -252,7 +265,7 @@ class Chat(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/chat.Chat/Logout',
+        return grpc.experimental.unary_unary(request, target, '/Chat/Logout',
             chat__pb2.Username.SerializeToString,
             chat__pb2.Payload.FromString,
             options, channel_credentials,
@@ -269,8 +282,25 @@ class Chat(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/chat.Chat/Delete',
+        return grpc.experimental.unary_unary(request, target, '/Chat/Delete',
             chat__pb2.Username.SerializeToString,
             chat__pb2.Payload.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Heartbeats(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_stream(request_iterator, target, '/Chat/Heartbeats',
+            chat__pb2.KeepAlive.SerializeToString,
+            chat__pb2.KeepAlive.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
