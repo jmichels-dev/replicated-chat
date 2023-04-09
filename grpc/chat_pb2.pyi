@@ -1,16 +1,23 @@
+from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class KeepAlive(_message.Message):
-    __slots__ = ["ip", "port"]
-    IP_FIELD_NUMBER: _ClassVar[int]
-    PORT_FIELD_NUMBER: _ClassVar[int]
-    ip: str
-    port: str
-    def __init__(self, ip: _Optional[str] = ..., port: _Optional[str] = ...) -> None: ...
+class KeepAliveRequest(_message.Message):
+    __slots__ = ["backup_id"]
+    BACKUP_ID_FIELD_NUMBER: _ClassVar[int]
+    backup_id: int
+    def __init__(self, backup_id: _Optional[int] = ...) -> None: ...
+
+class KeepAliveResponse(_message.Message):
+    __slots__ = ["backup_ids", "primary_id"]
+    BACKUP_IDS_FIELD_NUMBER: _ClassVar[int]
+    PRIMARY_ID_FIELD_NUMBER: _ClassVar[int]
+    backup_ids: _containers.RepeatedScalarFieldContainer[int]
+    primary_id: int
+    def __init__(self, primary_id: _Optional[int] = ..., backup_ids: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class Payload(_message.Message):
     __slots__ = ["msg"]

@@ -51,8 +51,8 @@ class ChatStub(object):
                 )
         self.Heartbeats = channel.stream_stream(
                 '/Chat/Heartbeats',
-                request_serializer=chat__pb2.KeepAlive.SerializeToString,
-                response_deserializer=chat__pb2.KeepAlive.FromString,
+                request_serializer=chat__pb2.KeepAliveRequest.SerializeToString,
+                response_deserializer=chat__pb2.KeepAliveResponse.FromString,
                 )
 
 
@@ -156,8 +156,8 @@ def add_ChatServicer_to_server(servicer, server):
             ),
             'Heartbeats': grpc.stream_stream_rpc_method_handler(
                     servicer.Heartbeats,
-                    request_deserializer=chat__pb2.KeepAlive.FromString,
-                    response_serializer=chat__pb2.KeepAlive.SerializeToString,
+                    request_deserializer=chat__pb2.KeepAliveRequest.FromString,
+                    response_serializer=chat__pb2.KeepAliveResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -300,7 +300,7 @@ class Chat(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.stream_stream(request_iterator, target, '/Chat/Heartbeats',
-            chat__pb2.KeepAlive.SerializeToString,
-            chat__pb2.KeepAlive.FromString,
+            chat__pb2.KeepAliveRequest.SerializeToString,
+            chat__pb2.KeepAliveResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

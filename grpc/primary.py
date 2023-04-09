@@ -75,7 +75,7 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
                 requestKeepAlive = next(backupStream)
                 this_backup_id = requestKeepAlive.backup_id
                 print("Received heartbeat from backup at server_id", this_backup_id)
-                self.backup_server_ids.add(this_backup_id)
+                self.backup_servers.add(this_backup_id)
 
                 # Send heartbeat to backup
                 # with open('snapshot.csv', newline = '') as testfile:

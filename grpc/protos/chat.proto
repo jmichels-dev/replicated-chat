@@ -18,7 +18,7 @@ service Chat {
 
     // Periodic messages from primary server to each backup server to 
     // determine if primary server or backup servers have failed
-    rpc Heartbeats(stream KeepAlive) returns (stream KeepAlive) {}
+    rpc Heartbeats(stream KeepAliveRequest) returns (stream KeepAliveResponse) {}
 }
 
 message Username {
