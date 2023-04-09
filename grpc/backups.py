@@ -64,4 +64,4 @@ if __name__ == '__main__':
         print("Correct usage: script, server_id (0 = primary, 1 = backup1, 2 = backup2)")
         exit()
     server_id = int(sys.argv[1])
-    run(server_id, constants.IP_PORT_DICT[0][0], constants.IP_PORT_DICT[0][1])
+    run(server_id, 0)
