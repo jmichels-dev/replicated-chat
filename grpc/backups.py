@@ -7,15 +7,23 @@ import chat_pb2
 import chat_pb2_grpc
 import helpers_grpc
 import constants
+import primary
 
-# Listens for messages from server's Listen response stream. Closes when user logs out or deletes acct.
-def listen_thread(username, stub, responseStream):
+# Listens for messages from primary server's KeepAlive response stream
+def keepalive_listen(ip, port, responseStream):
     while True:
         try:
             response = next(responseStream)
-            print(response.msg)
-        except:
+            time.sleep(primary.HEARTBEAT_INTERVAL)
+        except Exception as e:
+            print("Error in heartbeat from primary:", e)
             return
+
+def send_backup_heartbeats(ip, port):
+    keep_alive_request = chat_pb2.KeepAlive(ip=ip, port=port)
+    while True:
+        yield keep_alive_request
+        time.sleep(primary.HEARTBEAT_INTERVAL)
 
 def run(server_id):
     ip = constants.IP_PORT_DICT[server_id][0]
@@ -23,26 +31,13 @@ def run(server_id):
 
     with grpc.insecure_channel('{}:{}'.format(ip, port)) as channel:
         stub = chat_pb2_grpc.ChatStub(channel)
-        print("Congratulations! You have connected to the chat server.\n")
+        # print("Congratulations! You have connected to the chat server.\n")
 
-        while True:
-            username = signinLoop(stub)
-            # Now, the user is logged in. Notify the user of possible functions
-            print("If any messages arrive while you are logged in, they will be immediately displayed.\n")
-            print("Use the following commands to interact with the chat app: \n")
-            print(" -----------------------------------------------")
-            print("|L: List all accounts that exist on this server.|")
-            print("|S: Send a message to another user.             |")
-            print("|O: Log Out.                                    |")
-            print("|D: Delete account.                             |")
-            print(" ----------------------------------------------- \n")
-            print("Command: ")
-            # Establish response stream to receive messages from server.
-            # responseStream is a generator of chat_pb2.Payload objects.
-            responseStream = stub.Listen(chat_pb2.Username(name=username))
-            start_new_thread(listen_thread, (username, stub, responseStream))
-            # Wait for input from command line
-            messageLoop(username, stub)
+        # Establish bidirectional stream to send and receive keep-alive messages from primary server.
+        # requestStream and responseStream are generators of chat_pb2.KeepAlive objects.
+        requestStream = send_backup_heartbeats(ip, port)
+        responseStream = stub.Heartbeats(requestStream)
+        start_new_thread(keepalive_listen, (responseStream))
 
 
 if __name__ == '__main__':

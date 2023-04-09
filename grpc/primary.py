@@ -10,19 +10,25 @@ import chat_pb2
 import chat_pb2_grpc
 import helpers_grpc
 import constants
+import backups
 
 SNAPSHOT_INTERVAL = 5 # seconds
+HEARTBEAT_INTERVAL = 5
 
 class ChatServicer(chat_pb2_grpc.ChatServicer):
 
-    def __init__(self, servicer_lock):
+    def __init__(self, ip, port, servicer_lock):
         super(ChatServicer, self).__init__()
+        self.ip = ip
+        self.port = port
         # {username : [loggedOnBool, [messageQueue]]}
         self.clientDict = {}
         #self.clientDict = {'test1': [True, ["hello1", "hello2"]]}
+        self.backup_servers = []
         # Thread synchronization for snapshotting
         self.servicer_lock = servicer_lock
 
+    ## Client-server RPCs
     def SignInExisting(self, username, context):
         eFlag, msg = helpers_grpc.signInExisting(username.name, self.clientDict)
         return chat_pb2.Unreads(errorFlag=eFlag, unreads=msg)
@@ -58,8 +64,23 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
     def Delete(self, username, context):
         self.clientDict.pop(username.name)
         return chat_pb2.Payload(msg="Goodbye!\n")
-    
-    # Non-RPC server-side snapshots
+
+    ## Replication RPCs
+    def Heartbeats(self, backupStream, context):
+        # Add the connected backup server to the list
+        self.backup_servers.append(context.peer())
+
+        while True:
+            try:
+                response = next(backupStream)
+                yield chat_pb2.KeepAlive(ip=ip, port=port)
+                time.sleep(HEARTBEAT_INTERVAL)
+            except Exception as e:
+                print("Error in heartbeat from backup:", e)
+                self.backup_servers.remove(context.peer())
+                break
+
+    ## Non-RPC server-side snapshots
     def Snapshot(self):
         with open('snapshot.csv', 'w', newline = '') as testfile:
             rowwriter = csv.writer(testfile, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
@@ -73,7 +94,7 @@ def serve(server_id):
 
     # Create a lock for thread synchronization
     servicer_lock = threading.Lock()
-    servicer = ChatServicer(servicer_lock)
+    servicer = ChatServicer(ip, port, servicer_lock)
 
     # Start snapshot thread for snapshotting state and pass the servicer lock
     snapshot_thread = threading.Thread(target=snapshot, args=(servicer,), daemon=True)
@@ -88,19 +109,16 @@ def serve(server_id):
     
 def snapshot(servicer_instance):
     print("inside snapshot")
-    SERVER_TIME = time.time()
+    server_time = time.time()
     while True:
-        if time.time() - SERVER_TIME > SNAPSHOT_INTERVAL:
+        if time.time() - server_time > SNAPSHOT_INTERVAL:
             servicer_instance.Snapshot()
             helpers_grpc.resetCommitLog('commit_log.csv')
-            SERVER_TIME = time.time()
+            server_time = time.time()
 
 
 if __name__ == '__main__':
     logging.basicConfig()
-    # Checks for correct number of args
-    if len(sys.argv) != 2:
-        print("Correct usage: script, server_id (0 = primary, 1 = backup1, 2 = backup2)")
-        exit()
-    server_id = int(sys.argv[1])
-    serve(server_id)
+    serve(0)
+    backups.run(1)
+    backups.run(2)

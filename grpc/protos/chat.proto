@@ -17,8 +17,8 @@ service Chat {
     rpc Delete(Username) returns (Payload) {}
 
     // Periodic messages from primary server to each backup server to 
-    // determine if primary server has failed
-    rpc KeepAlives(Username) returns (stream Alive) {}
+    // determine if primary server or backup servers have failed
+    rpc Heartbeats(stream KeepAlive) returns (stream KeepAlive) {}
 }
 
 message Username {
@@ -46,13 +46,9 @@ message SendRequest {
     Payload sentMsg = 3;
 }
 
-// Request from backup server to initiate stream of periodic Alive responses 
-// from primary server
-message AliveRequest {
-    string init = 1;
-}
-
-// Confirmation that primary server has not failed
-message Alive {
-    bool isAlive = 1;
+// Periodic Alive requests and responses 
+// between primary server and backup servers
+message KeepAlive {
+    string ip = 1;
+    string port = 2;
 }

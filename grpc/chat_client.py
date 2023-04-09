@@ -105,7 +105,7 @@ def messageLoop(username, stub):
     messageLoop(username, stub)
 
 # Listens for messages from server's Listen response stream. Closes when user logs out or deletes acct.
-def listen_thread(username, stub, responseStream):
+def listen_thread(username, responseStream):
     while True:
         try:
             response = next(responseStream)
@@ -136,7 +136,7 @@ def run(server_id):
             # Establish response stream to receive messages from server.
             # responseStream is a generator of chat_pb2.Payload objects.
             responseStream = stub.Listen(chat_pb2.Username(name=username))
-            start_new_thread(listen_thread, (username, stub, responseStream))
+            start_new_thread(listen_thread, (username, responseStream))
             # Wait for input from command line
             messageLoop(username, stub)
 
