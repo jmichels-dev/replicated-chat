@@ -12,7 +12,7 @@ import helpers_grpc
 import constants
 import backups
 
-SNAPSHOT_INTERVAL = 5 # seconds
+SNAPSHOT_INTERVAL = 120 # seconds
 HEARTBEAT_INTERVAL = 5
 
 class ChatServicer(chat_pb2_grpc.ChatServicer):
@@ -58,10 +58,14 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
     def Logout(self, username, context):
         self.clientDict[username.name][0] = False
+        operation = ["LOGOUT", username.name]
+        helpers_grpc.logOp(operation)
         return chat_pb2.Payload(msg="Goodbye!\n")
 
     def Delete(self, username, context):
         self.clientDict.pop(username.name)
+        operation = ["DELETE", username.name]
+        helpers_grpc.logOp(operation)
         return chat_pb2.Payload(msg="Goodbye!\n")
 
     ## Replication RPCs
@@ -92,7 +96,7 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
     ## Non-RPC server-side snapshots
     def Snapshot(self):
-        with open('snapshot.csv', 'w', newline = '') as testfile:
+        with open('snapshot_' + str(server_id) + '.csv', 'w', newline = '') as testfile:
             rowwriter = csv.writer(testfile, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
             for key in self.clientDict:
                 rowwriter.writerow([key] + self.clientDict[key])
@@ -106,7 +110,11 @@ def serve(server_id):
     servicer_lock = threading.Lock()
     servicer = ChatServicer(server_id, servicer_lock)
 
-    loadSnapshot('snapshot.csv', servicer.clientDict)
+    loadSnapshot('snapshot_' + str(server_id) + '.csv', servicer.clientDict)
+    loadCommitLog('commit_log_' + str(server_id) + '.csv', servicer.clientDict)
+    
+    # For commit logging
+    helpers_grpc.getServerNo(server_id)
 
     # Start snapshot thread for snapshotting state and pass the servicer lock
     snapshot_thread = threading.Thread(target=snapshot, args=(servicer,), daemon=True)
@@ -141,13 +149,39 @@ def loadSnapshot(filename, clientDict):
                 clientDict[row[0]] = [False, []]
     print("snapshot loaded: \n")
     print(clientDict)
+
+def loadCommitLog(filename, clientDict):
+    try:
+        f = open(filename)
+        f.close()
+    except FileNotFoundError:
+        print("no commit log to load")
+        return
+    print("loading commit log...")
+    with open(filename, newline='') as log:
+        rowreader = csv.reader(log, delimiter=" ", quotechar="|")
+        for row in rowreader:
+            op = row[0]
+            if op == "ADD":
+                helpers_grpc.addUser(row[1], clientDict)
+            elif op == "LOGIN":
+                helpers_grpc.signInExisting(row[1], clientDict)
+            elif op == "SEND":
+                helpers_grpc.sendMsg(row[1], row[3], row[2], clientDict)
+            elif op == "LIST":
+                continue
+            elif op == "LOGOUT":
+                clientDict[row[1]] = [False, []]
+            elif op == "DELETE":
+                clientDict.pop(row[1])
+    print("commit log fully loaded\n")
     
 def snapshot(servicer_instance):
     server_time = time.time()
     while True:
         if time.time() - server_time > SNAPSHOT_INTERVAL:
             servicer_instance.Snapshot()
-            helpers_grpc.resetCommitLog('commit_log.csv')
+            helpers_grpc.resetCommitLog('commit_log_' + str(server_id) + '.csv')
             server_time = time.time()
 
 

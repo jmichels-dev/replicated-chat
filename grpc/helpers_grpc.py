@@ -131,9 +131,16 @@ def sendUserlist(wildcard, clientDict):
     return userListMsg
 
 def logOp(op):
-    with open('commit_log.csv', 'a', newline = '') as commitlog:
-        rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
-        rowwriter.writerow(op)
+    if SERVERNO != -1:
+        with open('commit_log_' + str(SERVERNO) + '.csv', 'a', newline = '') as commitlog:
+            rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
+            rowwriter.writerow(op)
+    else:
+        print("server number not found")
+
+def getServerNo(serverNo):
+    global SERVERNO
+    SERVERNO = serverNo
 
 def resetCommitLog(filename):
     f = open(filename, "w+")
