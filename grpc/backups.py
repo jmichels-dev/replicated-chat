@@ -24,7 +24,7 @@ def keepalive_listen(responseStream):
             print("Error in heartbeat from primary:", e)
             # Failstop by setting lower backup_id as new primary
             if len(backup_ids) == 2:
-                
+                pass
             return
 
 def send_backup_heartbeats(server_id):
