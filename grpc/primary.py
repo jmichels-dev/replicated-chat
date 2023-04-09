@@ -72,12 +72,14 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
         while True:
             try:
-                response = next(backupStream)
-                yield chat_pb2.KeepAlive(ip=ip, port=port)
+                requestKeepAlive = next(backupStream)
+                print("Received heartbeat from backup at", requestKeepAlive.port)
+                yield chat_pb2.KeepAlive(ip=self.ip, port=self.port)
                 time.sleep(HEARTBEAT_INTERVAL)
             except Exception as e:
                 print("Error in heartbeat from backup:", e)
                 self.backup_servers.remove(context.peer())
+                print("Existing backup servers:", self.backup_servers)
                 break
 
     ## Non-RPC server-side snapshots

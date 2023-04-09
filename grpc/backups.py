@@ -13,7 +13,8 @@ import primary
 def keepalive_listen(responseStream):
     while True:
         try:
-            response = next(responseStream)
+            responseKeepAlive = next(responseStream)
+            print("Received heartbeat from primary at", responseKeepAlive.port)
             time.sleep(primary.HEARTBEAT_INTERVAL)
         except Exception as e:
             print("Error in heartbeat from primary:", e)
@@ -40,9 +41,12 @@ def run(server_id, client_ip, client_port):
 
         # Establish bidirectional stream to send and receive keep-alive messages from primary server.
         # requestStream and responseStream are generators of chat_pb2.KeepAlive objects.
-        requestStream = send_backup_heartbeats(server_ip, server_port)
-        responseStream = stub.Heartbeats(requestStream)
-        start_new_thread(keepalive_listen, (responseStream,))
+        while True:
+            requestStream = send_backup_heartbeats(server_ip, server_port)
+            responseStream = stub.Heartbeats(requestStream)
+            keepalive_listen(responseStream)
+            time.sleep(10)
+            
 
 
 if __name__ == '__main__':
