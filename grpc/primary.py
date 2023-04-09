@@ -99,6 +99,8 @@ def serve(server_id):
     servicer_lock = threading.Lock()
     servicer = ChatServicer(server_id, servicer_lock)
 
+    loadSnapshot('snapshot.csv', servicer.clientDict)
+
     # Start snapshot thread for snapshotting state and pass the servicer lock
     snapshot_thread = threading.Thread(target=snapshot, args=(servicer,), daemon=True)
     snapshot_thread.start()
@@ -109,6 +111,23 @@ def serve(server_id):
     server.start()
     print("Server started, listening on " + port)
     server.wait_for_termination()
+
+def loadSnapshot(filename, clientDict):
+    try:
+        f = open(filename)
+        f.close()
+    except FileNotFoundError:
+        print("no snapshot to load")
+        return
+    print("loading snapshot...")
+    with open(filename, newline='') as snapshot:
+        rowreader = csv.reader(snapshot, delimiter=" ", quotechar="|")
+        for row in rowreader:
+            # False since if server crashes, users will be disconnected regardless of connection status at crash time
+            # issues with row[2], treats each char in row[2] as separate message
+            clientDict[row[0]] = [False, row[2]]
+    print("snapshot loaded: \n")
+    print(clientDict)
     
 def snapshot(servicer_instance):
     print("inside snapshot")
