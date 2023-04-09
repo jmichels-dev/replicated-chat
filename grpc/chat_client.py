@@ -143,9 +143,4 @@ def run(server_id):
 
 if __name__ == '__main__':
     logging.basicConfig()
-    # Checks for correct number of args
-    if len(sys.argv) != 2:
-        print("Correct usage: script, server_id (0 = primary, 1 = backup1, 2 = backup2)")
-        exit()
-    server_id = int(sys.argv[1])
-    run(server_id)
+    run(0)
