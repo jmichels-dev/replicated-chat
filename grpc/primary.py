@@ -151,6 +151,10 @@ def snapshot(servicer_instance):
 
 if __name__ == '__main__':
     logging.basicConfig()
-    serve(2)
+    if len(sys.argv) != 2:
+        print("Correct usage: script, server_id (0 = primary, 1 = backup1, 2 = backup2)")
+        exit()
+    server_id = int(sys.argv[1])
+    serve(server_id)
     # backups.run(1, 0)
     # backups.run(2, 0)
