@@ -12,9 +12,6 @@ import helpers_grpc
 import constants
 import backups
 
-SNAPSHOT_INTERVAL = 60 # seconds
-HEARTBEAT_INTERVAL = 5
-
 class ChatServicer(chat_pb2_grpc.ChatServicer):
 
     def __init__(self, server_id, servicer_lock):
@@ -89,7 +86,7 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
                 # Send heartbeat to backup
                 yield chat_pb2.KeepAliveResponse(primary_id=self.server_id, backup_ids=list(self.backup_servers))
-                time.sleep(HEARTBEAT_INTERVAL)
+                time.sleep(constants.HEARTBEAT_INTERVAL)
             except Exception as e:
                 print("Error in heartbeat from backup:", e)
                 self.backup_servers.remove(this_backup_id)
@@ -190,7 +187,7 @@ def loadCommitLog(filename, clientDict):
 def snapshot(servicer_instance):
     server_time = time.time()
     while True:
-        if time.time() - server_time > SNAPSHOT_INTERVAL:
+        if time.time() - server_time > constants.SNAPSHOT_INTERVAL:
             servicer_instance.Snapshot()
             helpers_grpc.resetCommitLog('commit_log_' + str(server_id) + '.csv')
             server_time = time.time()

@@ -40,7 +40,7 @@ def send_backup_heartbeats(this_backup_id):
     keep_alive_request = chat_pb2.KeepAliveRequest(backup_id=this_backup_id)
     while True:
         yield keep_alive_request
-        time.sleep(primary.HEARTBEAT_INTERVAL)
+        time.sleep(constants.HEARTBEAT_INTERVAL)
 
 def log_ops(opResponseStream, backup_clientDict, server_id):
     while True:
