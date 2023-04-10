@@ -96,8 +96,8 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
     def BackupOps(self, this_backup_id, context):
         while True:
-            if len(self.newOps[this_backup_id]) > 0:
-                yield chat_pb2.Operation(opLst=self.newOps[this_backup_id].pop(0))
+            if len(self.newOps[this_backup_id.backup_id]) > 0:
+                yield chat_pb2.Operation(opLst=self.newOps[this_backup_id.backup_id].pop(0))
 
     ## Non-RPC server-side snapshots
     def Snapshot(self):
