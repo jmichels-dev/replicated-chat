@@ -36,18 +36,21 @@ def keepalive_listen(responseStream, this_backup_id):
                 print("backup_ids empty")
             return
 
+# sends keepalive messages to primary server
 def send_backup_heartbeats(this_backup_id):
     keep_alive_request = chat_pb2.KeepAliveRequest(backup_id=this_backup_id)
     while True:
         yield keep_alive_request
         time.sleep(constants.HEARTBEAT_INTERVAL)
 
+# takes a snapshot of backup state
 def snapshot(backupDict):
     with open('snapshot_' + str(server_id) + '.csv', 'w', newline = '') as testfile:
         rowwriter = csv.writer(testfile, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
         for key in backupDict:
             rowwriter.writerow([key] + backupDict[key])
 
+# runs backup dict on its current commit log
 def loadCommitLog(filename, clientDict):
     try:
         f = open(filename)
@@ -74,6 +77,7 @@ def loadCommitLog(filename, clientDict):
                 clientDict.pop(row[1])
     print("commit log fully loaded\n")
 
+# writes operations to the backup commit log
 def log_ops(opResponseStream, server_id):
     while True:
         nextOp = next(opResponseStream)
@@ -81,6 +85,7 @@ def log_ops(opResponseStream, server_id):
             rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
             rowwriter.writerow(nextOp.opLst)
 
+# takes snapshots every SNAPSHOT_INTERVAL
 def snapshotThread(backup_clientDict, server_id):
     server_time = time.time()
     while True:
