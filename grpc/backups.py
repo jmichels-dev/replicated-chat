@@ -110,7 +110,7 @@ def run(server_id, client_id):
         opResponseStream = stub.BackupOps(chat_pb2.KeepAliveRequest(backup_id=server_id))
         # Concurrently update state in a thread
         backup_clientDict = {}
-        start_new_thread(log_ops, (opResponseStream, backup_clientDict, server_id))
+        start_new_thread(log_ops, (opResponseStream, server_id))
         start_new_thread(snapshotThread, (backup_clientDict, server_id))
 
 
