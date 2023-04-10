@@ -20,7 +20,7 @@ service Chat {
     // determine if primary server or backup servers have failed
     rpc Heartbeats(stream KeepAliveRequest) returns (stream KeepAliveResponse) {}
 
-    rpc BackupOp(KeepAliveRequest) returns (stream Operation) {}
+    rpc BackupOps(KeepAliveRequest) returns (stream Operation) {}
 }
 
 message Username {
