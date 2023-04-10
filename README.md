@@ -23,7 +23,7 @@ The files for these applications are stored in a public GitHub repo, which can b
 To get the files from this repository to your local machine, run the following command in the terminal when in the desired location for the files 
 to be downloaded to:
 
-    git clone https://github.com/jamesb2413/chat-wire-protocol
+    git clone https://github.com/jamesb2413/replicated-chat
 
 Now, you should have all of the files necessary to run the applications. There are a couple python libraries that are required to run these 
 programs. You will need the socket library in addition to the unittest library to run the tests, both of which are built into the standard python 
@@ -35,32 +35,24 @@ https://grpc.io/docs/languages/python/quickstart/. This will require installatio
 -----------------------------------------------------------------------------------------------------------------------------------------------
 2. Startup
 
-***Note. the custom wire protocol server only works with the custom wire protocol client and vice versa, and same for the gRPC client and server***
-
-We first want to start up the server. To do this, edit the IP addresses in constants.py to match your machine(s). The constants use the following conventions: the three servers in the system use ids 0, 1, 2 respectively. By default, 0 is the primary server and 1 & 2 are backups. To start the primary, run:
+We first want to start up the server. To do this, edit the IP addresses in constants.py to match your machine(s). The constants use the following conventions: the three servers in the system use ids 0, 1, 2 respectively. To start the primary (at server 0), run:
 
     python primary.py 0
 
-Or, replace 0 with the desired id for your primary server. If you are running the application on just one machine, use IP address 127.0.0.1 (localhost) or look up your IPv4 (on Mac, Settings -> Network -> Advanced -> TCP/IP, listed as IPv4), start the server using this address, and give this address to each client that wishes to connect to  the chat server. As for the port number, 8080 works well for both one and multiple machines. 
+Or, replace 0 with the desired id for your primary server. If you are running the application on just one machine, use IP address 127.0.0.1 (localhost) or look up your IPv4 (on Mac, Settings -> Network -> Advanced -> TCP/IP, listed as IPv4), start the server using this address, and give this address to each client that wishes to connect to  the chat server. As for the port number, 8080, 8081, and 8082 are usually available. 
 
-To set up the server using gRPC, there is no need to specify the IP and port. Simply enter
+To start backup servers, specify the id of the backup server as the first argument and the primary server id as the second argument, e.g.
 
-    python server.py
+    python backups.py 1 0
 
-Now that the server is running, clients can begin to connect to it. For the custom wire protocol version, run
+Now that the servers are running, clients can begin to connect to the primary. The argument should match the primary server:
 
-    python client.py IP_ADDRESS PORT_NO
-
-to start the client. 
-
-For gRPC, run
-
-    python client.py
+    python client.py 0
     
-Congratulations! At this point, you should connect to the server and recieve a welcome message. 
+Congratulations! At this point, you should connect to the server and recieve a welcome message. Replication ensures persistent state and system fault tolerance, but when the primary server fails, clients still need to terminate and connect to the new primary server. An extension of this project could implement a GUI which abstracts client reconnections so the user experience is uninterrupted.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
-3. Operation - All operations are identical for the gRPC and custom wire protocol applications.
+3. Operation
 
 Now that the server is running and clients are connected, you will be asked if you already have a username. If so, enter 'y', else 'n'. If 'y' 
 is entered, you will be prompted for your username, and if it matches a username in the database, you will be logged in. If 'n', then you will 
@@ -91,12 +83,8 @@ returned to the login screen.
 -----------------------------------------------------------------------------------------------------------------------------------------------
 4. Operation - Unit Tests
 
-The unit tests for the custom wire protocol and gRPC applications can be found in test_helpers.py and test_helpers_gRPC.py. To run the tests in 
+The unit tests can be found in test_helpers_gRPC.py. To run the tests in 
 test_helpers.py, in the terminal run:
-
-    python -m unittest test_helpers.py
-
-And to run the tests in test_helpers_gRPC.py, run:
 
     python -m unittest test_helpers_gRPC.py
 
