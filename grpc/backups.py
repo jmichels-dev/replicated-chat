@@ -42,15 +42,27 @@ def send_backup_heartbeats(this_backup_id):
         yield keep_alive_request
         time.sleep(constants.HEARTBEAT_INTERVAL)
 
+def snapshot(backupDict):
+    with open('snapshot_' + str(server_id) + '.csv', 'w', newline = '') as testfile:
+        rowwriter = csv.writer(testfile, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
+        for key in backupDict:
+            rowwriter.writerow([key] + backupDict[key])
+
 def log_ops(opResponseStream, backup_clientDict, server_id):
+    server_time = time.time()
     while True:
-        try:
-            nextOp = next(opResponseStream)
-            with open('commit_log_' + str(server_id) + '.csv', 'a', newline = '') as commitlog:
-                rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
-                rowwriter.writerow(nextOp.opLst)
-        except:
-            pass
+        if (time.time() - server_time > constants.SNAPSHOT_INTERVAL):
+            print("backup taking snapshot")
+            snapshot(backup_clientDict)
+            server_time = time.time()
+        else:
+            try:
+                nextOp = next(opResponseStream)
+                with open('commit_log_' + str(server_id) + '.csv', 'a', newline = '') as commitlog:
+                    rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
+                    rowwriter.writerow(nextOp.opLst)
+            except:
+                pass
 
 def run(server_id, client_id):
     # ip and port that this backup will use if it becomes primary
