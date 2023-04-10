@@ -54,8 +54,8 @@ class ChatStub(object):
                 request_serializer=chat__pb2.KeepAliveRequest.SerializeToString,
                 response_deserializer=chat__pb2.KeepAliveResponse.FromString,
                 )
-        self.BackupOp = channel.unary_stream(
-                '/Chat/BackupOp',
+        self.BackupOps = channel.unary_stream(
+                '/Chat/BackupOps',
                 request_serializer=chat__pb2.KeepAliveRequest.SerializeToString,
                 response_deserializer=chat__pb2.Operation.FromString,
                 )
@@ -121,7 +121,7 @@ class ChatServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def BackupOp(self, request, context):
+    def BackupOps(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -170,8 +170,8 @@ def add_ChatServicer_to_server(servicer, server):
                     request_deserializer=chat__pb2.KeepAliveRequest.FromString,
                     response_serializer=chat__pb2.KeepAliveResponse.SerializeToString,
             ),
-            'BackupOp': grpc.unary_stream_rpc_method_handler(
-                    servicer.BackupOp,
+            'BackupOps': grpc.unary_stream_rpc_method_handler(
+                    servicer.BackupOps,
                     request_deserializer=chat__pb2.KeepAliveRequest.FromString,
                     response_serializer=chat__pb2.Operation.SerializeToString,
             ),
@@ -322,7 +322,7 @@ class Chat(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def BackupOp(request,
+    def BackupOps(request,
             target,
             options=(),
             channel_credentials=None,
@@ -332,7 +332,7 @@ class Chat(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/Chat/BackupOp',
+        return grpc.experimental.unary_stream(request, target, '/Chat/BackupOps',
             chat__pb2.KeepAliveRequest.SerializeToString,
             chat__pb2.Operation.FromString,
             options, channel_credentials,
