@@ -41,7 +41,7 @@ def send_backup_heartbeats(this_backup_id):
         yield keep_alive_request
         time.sleep(primary.HEARTBEAT_INTERVAL)
 
-def execute_ops(opResponseStream):
+def execute_ops(opResponseStream, backup_clientDict):
     while True:
         try:
             nextOp = next(opResponseStream)
@@ -63,6 +63,7 @@ def run(server_id, client_id):
         opResponseStream = stub.BackupOp(chat_pb2.KeepAliveRequest(backup_id=server_id))
         # Concurrently update state in a thread
         backup_clientDict = {}
+        start_new_thread(execute_ops, (opResponseStream, backup_clientDict))
 
         # Establish bidirectional stream to send and receive keep-alive messages from primary server.
         # requestStream and responseStream are generators of chat_pb2.KeepAlive objects.
