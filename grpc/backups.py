@@ -48,7 +48,7 @@ def log_ops(opResponseStream, backup_clientDict, server_id):
             nextOp = next(opResponseStream)
             with open('commit_log_' + str(server_id) + '.csv', 'a', newline = '') as commitlog:
                 rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
-                rowwriter.writerow(nextOp)
+                rowwriter.writerow(nextOp.opLst)
         except:
             pass
 
