@@ -88,8 +88,8 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
                 # Send heartbeat to backup
                 yield chat_pb2.KeepAliveResponse(primary_id=self.server_id, backup_ids=list(self.backup_servers))
                 time.sleep(constants.HEARTBEAT_INTERVAL)
-            except Exception as e:
-                print("Error in heartbeat from backup:", e)
+            except Exception:
+                print("Error in heartbeat from backup.")
                 self.backup_servers.remove(this_backup_id)
                 self.newOps.pop(this_backup_id)
                 print("Remaining backup servers:", self.backup_servers)
