@@ -66,7 +66,7 @@ def run(server_id, client_id):
         # print("Congratulations! You have connected to the chat server.\n")
 
         # Establish response stream to receive operations from the primary
-        opResponseStream = stub.BackupOp(chat_pb2.KeepAliveRequest(backup_id=server_id))
+        opResponseStream = stub.BackupOps(chat_pb2.KeepAliveRequest(backup_id=server_id))
         # Concurrently update state in a thread
         backup_clientDict = {}
         start_new_thread(log_ops, (opResponseStream, backup_clientDict, server_id))
