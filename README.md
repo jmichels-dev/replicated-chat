@@ -1,7 +1,5 @@
-# README needs edits (currently old version from chat-wire-protocol)
-In /custom_wire_protocol: A simple client/server chat application implemented with a custom wire protocol
-
-In /grpc: A simple client/server chat application implemented using gRPC
+# README
+In /grpc: A 2-fault tolerant replicated client/server chat application using gRPC
 
 Sections:
 1. Setup (pull from github, required libraries, etc.)
