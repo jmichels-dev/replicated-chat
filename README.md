@@ -1,12 +1,9 @@
-# README needs edits (currently old version from chat-wire-protocol)
-In /custom_wire_protocol: A simple client/server chat application implemented with a custom wire protocol
-
-In /grpc: A simple client/server chat application implemented using gRPC
+# README
+In /grpc: A 2-fault tolerant replicated client/server chat application using gRPC
 
 Sections:
 1. Setup (pull from github, required libraries, etc.)
 2. Startup
-3. Operation - Custom Wire Protocol
 4. Operation - gRPC
 5. Operation - Unit tests
 
@@ -15,16 +12,14 @@ Overview.
 
 This application is a simple chat room that implements client/server connection and one-to-one client communication. It can be run on a single 
 machine, as well as between multiple different machines. There are other functionalities in addition to sending messsages, which include listing 
-all or a subset of users who exist in the server, login/logout, and deleting one's account. There are two implementations of this application, one 
-which uses a custom wire protocol to allow communication between the client and server, and another leveraging gRPC to avoid needing to define a 
-custom wire protocol. There are also unit tests for each implementation.
+all or a subset of users who exist in the server, login/logout, and deleting one's account. The system is both persistent (it can be stopped and re-started without losing messages that were sent during the time it was running) and 2-fault tolerant in the face of crash/failstop failures. Replication is implemented with a primary-backup architecture, where the primary server sends changes to state along to backups. In the case of a primary server failure, backups hold a leader election and use commit logs and snapshots to maintain consistent state.
 
 In order to run any FILE.py, in the terminal, enter "python FILE.py".
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 1. Setup
 
-The files for these applications are stored in a public GitHub repo, which can be accessed at https://github.com/jamesb2413/chat-wire-protocol.
+The files for these applications are stored in a public GitHub repo, which can be accessed at https://github.com/jamesb2413/replicated-chat.
 To get the files from this repository to your local machine, run the following command in the terminal when in the desired location for the files 
 to be downloaded to:
 
@@ -42,16 +37,11 @@ https://grpc.io/docs/languages/python/quickstart/. This will require installatio
 
 ***Note. the custom wire protocol server only works with the custom wire protocol client and vice versa, and same for the gRPC client and server***
 
-The first step to using the custom wire protocol chat application is to run the program. Because this application is a client/server application, 
-the server must be running at all times in order for clients to be able to connect to it, save their data on it, and access all the features the 
-application has to offer. So, we first want to start up the server. To do this, run:
+We first want to start up the server. To do this, edit the IP addresses in constants.py to match your machine(s). The constants use the following conventions: the three servers in the system use ids 0, 1, 2 respectively. By default, 0 is the primary server and 1 & 2 are backups. To start the primary, run:
 
-    python server.py IP_ADDRESS PORT_NO
+    python primary.py 0
 
-Where IP_ADDRESS is the IP address which you want to run the server on and PORT_NO is an empty port to allow users to connect to. If you are 
-running the application on just one machine, use IP address 127.0.0.1 (localhost), otherwise you will need to look up your IPv4 (on Mac, Settings ->
-Network -> Advanced -> TCP/IP, listed as IPv4), start the server using this address, and give this address to each client that wishes to connect to 
-the chat server. As for the port number, 8080 works well for both one and multiple machines. 
+Or, replace 0 with the desired id for your primary server. If you are running the application on just one machine, use IP address 127.0.0.1 (localhost) or look up your IPv4 (on Mac, Settings -> Network -> Advanced -> TCP/IP, listed as IPv4), start the server using this address, and give this address to each client that wishes to connect to  the chat server. As for the port number, 8080 works well for both one and multiple machines. 
 
 To set up the server using gRPC, there is no need to specify the IP and port. Simply enter
 
