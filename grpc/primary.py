@@ -123,7 +123,6 @@ def serve(server_id):
     loadSnapshot('snapshot_' + str(server_id) + '.csv', servicer.clientDict)
     loadCommitLog('commit_log_' + str(server_id) + '.csv', servicer.clientDict)
     
-    
 
     # Start snapshot thread for snapshotting state and pass the servicer lock
     snapshot_thread = threading.Thread(target=snapshot, args=(servicer,), daemon=True)
@@ -183,6 +182,9 @@ def loadCommitLog(filename, clientDict):
                 clientDict[row[1]] = [False, []]
             elif op == "DELETE":
                 clientDict.pop(row[1])
+    # log everyone out so noone is locked out of acct
+    for key, val in clientDict.items():
+        clientDict[key][0] = False
     print("commit log fully loaded\n")
     
 def snapshot(servicer_instance):

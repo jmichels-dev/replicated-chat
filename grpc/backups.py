@@ -48,11 +48,40 @@ def snapshot(backupDict):
         for key in backupDict:
             rowwriter.writerow([key] + backupDict[key])
 
+def loadCommitLog(filename, clientDict):
+    try:
+        f = open(filename)
+        f.close()
+    except FileNotFoundError:
+        print("no commit log to load")
+        return
+    print("loading commit log...")
+    with open(filename, newline='') as log:
+        rowreader = csv.reader(log, delimiter=" ", quotechar="|")
+        for row in rowreader:
+            op = row[0]
+            if op == "ADD":
+                helpers_grpc.addUser(row[1], clientDict)
+            elif op == "LOGIN":
+                helpers_grpc.signInExisting(row[1], clientDict)
+            elif op == "SEND":
+                helpers_grpc.sendMsg(row[1], row[3], row[2], clientDict)
+            elif op == "LIST":
+                continue
+            elif op == "LOGOUT":
+                clientDict[row[1]] = [False, []]
+            elif op == "DELETE":
+                clientDict.pop(row[1])
+    print("commit log fully loaded\n")
+
 def log_ops(opResponseStream, backup_clientDict, server_id):
     server_time = time.time()
     while True:
         if (time.time() - server_time > constants.SNAPSHOT_INTERVAL):
             print("backup taking snapshot")
+            filename = 'commit_log_' + str(server_id) + '.csv'
+            loadCommitLog(backup_clientDict, filename)
+            helpers_grpc.resetCommitLog(filename)
             snapshot(backup_clientDict)
             server_time = time.time()
         else:
