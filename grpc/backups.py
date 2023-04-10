@@ -20,7 +20,7 @@ def keepalive_listen(responseStream, this_backup_id):
             primary_id = responseKeepAlive.primary_id
             backup_ids = responseKeepAlive.backup_ids
             print("Received heartbeat from primary at server_id", primary_id)
-            time.sleep(primary.HEARTBEAT_INTERVAL)
+            time.sleep(constants.HEARTBEAT_INTERVAL)
         except Exception as e:
             print("Error in heartbeat from primary:", e)
             # Failstop by setting lower backup_id as new primary
