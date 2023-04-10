@@ -1,9 +1,6 @@
 import csv
 
-opsDict = {}
-
 ## Used in client
-# TODO: Unit test
 def isValidUsername(username):
     usernameWords = username.split()
     # If user inputs empty string, whitespace, or multiple words as username
