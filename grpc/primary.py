@@ -12,7 +12,7 @@ import helpers_grpc
 import constants
 import backups
 
-SNAPSHOT_INTERVAL = 120 # seconds
+SNAPSHOT_INTERVAL = 60 # seconds
 HEARTBEAT_INTERVAL = 5
 
 class ChatServicer(chat_pb2_grpc.ChatServicer):
@@ -110,11 +110,13 @@ def serve(server_id):
     servicer_lock = threading.Lock()
     servicer = ChatServicer(server_id, servicer_lock)
 
+    # For commit logging
+    helpers_grpc.getServerNo(server_id)
+
     loadSnapshot('snapshot_' + str(server_id) + '.csv', servicer.clientDict)
     loadCommitLog('commit_log_' + str(server_id) + '.csv', servicer.clientDict)
     
-    # For commit logging
-    helpers_grpc.getServerNo(server_id)
+    
 
     # Start snapshot thread for snapshotting state and pass the servicer lock
     snapshot_thread = threading.Thread(target=snapshot, args=(servicer,), daemon=True)
