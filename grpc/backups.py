@@ -74,7 +74,7 @@ def loadCommitLog(filename, clientDict):
                 clientDict.pop(row[1])
     print("commit log fully loaded\n")
 
-def log_ops(opResponseStream, backup_clientDict, server_id):
+def log_ops(opResponseStream, server_id):
     while True:
         nextOp = next(opResponseStream)
         with open('commit_log_' + str(server_id) + '.csv', 'a', newline = '') as commitlog:
@@ -85,7 +85,6 @@ def snapshotThread(backup_clientDict, server_id):
     server_time = time.time()
     while True:
         if (time.time() - server_time > constants.SNAPSHOT_INTERVAL):
-            print("backup taking snapshot")
             filename = 'commit_log_' + str(server_id) + '.csv'
             loadCommitLog(filename, backup_clientDict)
             helpers_grpc.resetCommitLog(filename)
