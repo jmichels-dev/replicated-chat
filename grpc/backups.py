@@ -75,6 +75,13 @@ def loadCommitLog(filename, clientDict):
     print("commit log fully loaded\n")
 
 def log_ops(opResponseStream, backup_clientDict, server_id):
+    while True:
+        nextOp = next(opResponseStream)
+        with open('commit_log_' + str(server_id) + '.csv', 'a', newline = '') as commitlog:
+            rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
+            rowwriter.writerow(nextOp.opLst)
+
+def snapshotThread(backup_clientDict, server_id):
     server_time = time.time()
     while True:
         if (time.time() - server_time > constants.SNAPSHOT_INTERVAL):
@@ -85,13 +92,7 @@ def log_ops(opResponseStream, backup_clientDict, server_id):
             snapshot(backup_clientDict)
             server_time = time.time()
         else:
-            try:
-                nextOp = next(opResponseStream)
-                with open('commit_log_' + str(server_id) + '.csv', 'a', newline = '') as commitlog:
-                    rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
-                    rowwriter.writerow(nextOp.opLst)
-            except:
-                pass
+            continue
 
 def run(server_id, client_id):
     # ip and port that this backup will use if it becomes primary
@@ -111,6 +112,8 @@ def run(server_id, client_id):
         # Concurrently update state in a thread
         backup_clientDict = {}
         start_new_thread(log_ops, (opResponseStream, backup_clientDict, server_id))
+        start_new_thread(snapshotThread, (backup_clientDict, server_id))
+
 
         # Establish bidirectional stream to send and receive keep-alive messages from primary server.
         # requestStream and responseStream are generators of chat_pb2.KeepAlive objects.
