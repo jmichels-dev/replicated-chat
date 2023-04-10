@@ -45,6 +45,8 @@ def execute_ops(opResponseStream, backup_clientDict):
     while True:
         try:
             nextOp = next(opResponseStream)
+        except:
+            pass
 
 def run(server_id, client_id):
     # ip and port that this backup will use if it becomes primary
