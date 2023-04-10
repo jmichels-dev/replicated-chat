@@ -28,16 +28,16 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
     ## Client-server RPCs
     def SignInExisting(self, username, context):
-        eFlag, msg = helpers_grpc.signInExisting(username.name, self.clientDict, self.newOps)
+        eFlag, msg = helpers_grpc.signInExisting(username.name, self.clientDict, self.newOps, True)
         return chat_pb2.Unreads(errorFlag=eFlag, unreads=msg)
     
     def AddUser(self, username, context):
-        eFlag, msg = helpers_grpc.addUser(username.name, self.clientDict, self.newOps)
+        eFlag, msg = helpers_grpc.addUser(username.name, self.clientDict, self.newOps, True)
         return chat_pb2.Unreads(errorFlag=eFlag, unreads=msg)
 
     def Send(self, sendRequest, context):
         response = helpers_grpc.sendMsg(sendRequest.sender.name, sendRequest.recipient.name, 
-                                        sendRequest.sentMsg.msg, self.clientDict, self.newOps)
+                                        sendRequest.sentMsg.msg, self.clientDict, self.newOps, True)
         return chat_pb2.Payload(msg=response)
 
     # usernameStream only comes from logged-in user
@@ -52,7 +52,7 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
                 break
 
     def List(self, wildcard, context):
-        payload = helpers_grpc.sendUserlist(wildcard.msg, self.clientDict, self.newOps)
+        payload = helpers_grpc.sendUserlist(wildcard.msg, self.clientDict, self.newOps, True)
         return chat_pb2.Payload(msg=payload)
 
     def Logout(self, username, context):
@@ -121,7 +121,7 @@ def serve(server_id):
     helpers_grpc.getServerNo(server_id)
 
     loadSnapshot('snapshot_' + str(server_id) + '.csv', servicer.clientDict)
-    loadCommitLog('commit_log_' + str(server_id) + '.csv', servicer.clientDict)
+    loadCommitLog('commit_log_' + str(server_id) + '.csv', servicer.clientDict, servicer.newOps)
     
 
     # Start snapshot thread for snapshotting state and pass the servicer lock
@@ -158,7 +158,7 @@ def loadSnapshot(filename, clientDict):
     print("snapshot loaded: \n")
     print(clientDict)
 
-def loadCommitLog(filename, clientDict):
+def loadCommitLog(filename, clientDict, newOps):
     try:
         f = open(filename)
         f.close()
@@ -171,11 +171,11 @@ def loadCommitLog(filename, clientDict):
         for row in rowreader:
             op = row[0]
             if op == "ADD":
-                helpers_grpc.addUser(row[1], clientDict)
+                helpers_grpc.addUser(row[1], clientDict, newOps, False)
             elif op == "LOGIN":
-                helpers_grpc.signInExisting(row[1], clientDict)
+                helpers_grpc.signInExisting(row[1], clientDict, newOps, False)
             elif op == "SEND":
-                helpers_grpc.sendMsg(row[1], row[3], row[2], clientDict)
+                helpers_grpc.sendMsg(row[1], row[3], row[2], clientDict, newOps, False)
             elif op == "LIST":
                 continue
             elif op == "LOGOUT":

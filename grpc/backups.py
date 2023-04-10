@@ -61,11 +61,11 @@ def loadCommitLog(filename, clientDict):
         for row in rowreader:
             op = row[0]
             if op == "ADD":
-                helpers_grpc.addUser(row[1], clientDict)
+                helpers_grpc.addUser(row[1], clientDict, {}, False)
             elif op == "LOGIN":
-                helpers_grpc.signInExisting(row[1], clientDict)
+                helpers_grpc.signInExisting(row[1], clientDict, {}, False)
             elif op == "SEND":
-                helpers_grpc.sendMsg(row[1], row[3], row[2], clientDict)
+                helpers_grpc.sendMsg(row[1], row[3], row[2], clientDict, {}, False)
             elif op == "LIST":
                 continue
             elif op == "LOGOUT":
@@ -87,7 +87,7 @@ def snapshotThread(backup_clientDict, server_id):
         if (time.time() - server_time > constants.SNAPSHOT_INTERVAL):
             print("backup taking snapshot")
             filename = 'commit_log_' + str(server_id) + '.csv'
-            loadCommitLog(backup_clientDict, filename)
+            loadCommitLog(filename, backup_clientDict)
             helpers_grpc.resetCommitLog(filename)
             snapshot(backup_clientDict)
             server_time = time.time()
