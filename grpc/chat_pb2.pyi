@@ -19,6 +19,12 @@ class KeepAliveResponse(_message.Message):
     primary_id: int
     def __init__(self, primary_id: _Optional[int] = ..., backup_ids: _Optional[_Iterable[int]] = ...) -> None: ...
 
+class Operation(_message.Message):
+    __slots__ = ["opLst"]
+    OPLST_FIELD_NUMBER: _ClassVar[int]
+    opLst: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, opLst: _Optional[_Iterable[str]] = ...) -> None: ...
+
 class Payload(_message.Message):
     __slots__ = ["msg"]
     MSG_FIELD_NUMBER: _ClassVar[int]

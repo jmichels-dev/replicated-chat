@@ -1,6 +1,7 @@
 import csv
 
 opsDict = {}
+SERVERNO = -1
 
 ## Used in client
 # TODO: Unit test
@@ -148,10 +149,9 @@ def backupOp(op, newOps):
     for key in newOps:
         newOps[key].append(op)
 
-def getServerNo(serverNo, opsDict):
+def getServerNo(serverNo):
     global SERVERNO
     SERVERNO = serverNo
-    opsDict = opsDict
 
 def resetCommitLog(filename):
     f = open(filename, "w+")

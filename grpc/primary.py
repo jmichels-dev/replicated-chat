@@ -120,7 +120,7 @@ def serve(server_id):
     servicer = ChatServicer(server_id, servicer_lock)
 
     # For commit logging
-    helpers_grpc.getServerNoAndOpsDict(server_id, servicer.newOps)
+    helpers_grpc.getServerNo(server_id)
 
     loadSnapshot('snapshot_' + str(server_id) + '.csv', servicer.clientDict)
     loadCommitLog('commit_log_' + str(server_id) + '.csv', servicer.clientDict)
