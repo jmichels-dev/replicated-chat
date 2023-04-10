@@ -19,6 +19,8 @@ service Chat {
     // Periodic messages from primary server to each backup server to 
     // determine if primary server or backup servers have failed
     rpc Heartbeats(stream KeepAliveRequest) returns (stream KeepAliveResponse) {}
+
+    rpc BackupOp(KeepAliveRequest) returns (stream Operation) {}
 }
 
 message Username {
@@ -56,4 +58,8 @@ message KeepAliveResponse {
     int32 primary_id = 1;
     repeated int32 backup_ids = 2;
     // bytes snapshot = 3;
+}
+
+message Operation {
+    repeated string opLst = 1;
 }

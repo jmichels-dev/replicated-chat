@@ -1,5 +1,7 @@
 import csv
 
+opsDict = {}
+
 ## Used in client
 # TODO: Unit test
 def isValidUsername(username):
@@ -25,7 +27,7 @@ def existingOrNew():
 
 ## Used in server
 # Create new user with input username. Returns (errorFlag, errorMsg).
-def addUser(username, clientDict):
+def addUser(username, clientDict, newOps):
     # If username is already taken, notify user and request new username
     if username in clientDict:
         return (True, "This username is already taken by another account. Please " +
@@ -33,11 +35,12 @@ def addUser(username, clientDict):
     # If username is valid, create new user in userDict
     clientDict[username] = [True, []]
     operation = ['ADD', str(username)]
+    backupOp(op, newOps)
     logOp(operation)
     return (False, "")
 
 # Sign in to existing account. Returns (errorFlag, message).
-def signInExisting(username, clientDict):
+def signInExisting(username, clientDict, newOps):
     try:
         # From clientDict: [loggedOnBool, messageQueue]
         userAttributes = clientDict[username]
@@ -49,6 +52,7 @@ def signInExisting(username, clientDict):
         else:
             userAttributes[0] = True
             operation = ["LOGIN", str(username)]
+            backupOp(operation, newOps)
             logOp(operation)
     except:
         # If account does not exist
@@ -64,7 +68,7 @@ def signInExisting(username, clientDict):
     return (False, unreads)
     
 # Returns error message or sender confirmation & enqueues message for recipient
-def sendMsg(sender, recipient, message, clientDict):
+def sendMsg(sender, recipient, message, clientDict, newOps):
     # Error handling message 
     error_handle = "Error sending message to " + recipient + ": "
 
@@ -85,15 +89,17 @@ def sendMsg(sender, recipient, message, clientDict):
         # Enqueue the message
         clientDict[recipient][1].append(recipientMsg)
         operation = ["SEND", sender, message, recipient]
+        backupOp(op, newOps)
         logOp(operation)
         return senderNote
     except:
         error_handle += "Recipient connection error"
         return error_handle
     
-def sendUserlist(wildcard, clientDict):
+def sendUserlist(wildcard, clientDict, newOps):
     allUsers, matches = list(clientDict.keys()), list(clientDict.keys())
     operation = ["LIST", wildcard]
+    backupOp(op, newOps)
     logOp(operation)
 
     # return list of qualifying users
@@ -138,9 +144,14 @@ def logOp(op):
     else:
         print("server number not found")
 
-def getServerNo(serverNo):
+def backupOp(op, newOps):
+    for key in newOps:
+        newOps[key].append(op)
+
+def getServerNo(serverNo, opsDict):
     global SERVERNO
     SERVERNO = serverNo
+    opsDict = opsDict
 
 def resetCommitLog(filename):
     f = open(filename, "w+")

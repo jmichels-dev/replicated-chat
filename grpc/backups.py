@@ -41,6 +41,11 @@ def send_backup_heartbeats(this_backup_id):
         yield keep_alive_request
         time.sleep(primary.HEARTBEAT_INTERVAL)
 
+def execute_ops(opResponseStream):
+    while True:
+        try:
+            nextOp = next(opResponseStream)
+
 def run(server_id, client_id):
     # ip and port that this backup will use if it becomes primary
     server_ip = constants.IP_PORT_DICT[server_id][0]
@@ -54,13 +59,18 @@ def run(server_id, client_id):
         stub = chat_pb2_grpc.ChatStub(channel)
         # print("Congratulations! You have connected to the chat server.\n")
 
+        # Establish response stream to receive operations from the primary
+        opResponseStream = stub.BackupOp(chat_pb2.KeepAliveRequest(backup_id=server_id))
+        # Concurrently update state in a thread
+        backup_clientDict = {}
+
         # Establish bidirectional stream to send and receive keep-alive messages from primary server.
         # requestStream and responseStream are generators of chat_pb2.KeepAlive objects.
         while True:
             requestStream = send_backup_heartbeats(server_id)
             responseStream = stub.Heartbeats(requestStream)
             keepalive_listen(responseStream, server_id)
-            time.sleep(10)
+            time.sleep(constants.HEARTBEAT_INTERVAL)
             
 
 
