@@ -136,9 +136,9 @@ def sendUserlist(wildcard, clientDict, newOps):
     userListMsg += "---------------\n"
     return userListMsg
 
-def logOp(op):
-    if SERVERNO != -1:
-        with open('commit_log_' + str(SERVERNO) + '.csv', 'a', newline = '') as commitlog:
+def logOp(op, this_serverno=SERVERNO):
+    if this_serverno != -1:
+        with open('commit_log_' + str(this_serverno) + '.csv', 'a', newline = '') as commitlog:
             rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
             rowwriter.writerow(op)
     else:

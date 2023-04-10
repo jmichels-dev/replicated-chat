@@ -45,7 +45,7 @@ def log_ops(opResponseStream, backup_clientDict, server_id):
     while True:
         try:
             nextOp = next(opResponseStream)
-            helpers_grpc.logOp(op, server_id)
+            helpers_grpc.logOp(nextOp, server_id)
         except:
             pass
 
