@@ -83,6 +83,7 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
                 self.backup_servers.add(this_backup_id)
                 if this_backup_id not in self.newOps:
                     self.newOps[this_backup_id] = []
+                print("newOps:", self.newOps)
 
                 # Send heartbeat to backup
                 yield chat_pb2.KeepAliveResponse(primary_id=self.server_id, backup_ids=list(self.backup_servers))
@@ -96,7 +97,7 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
     def BackupOps(self, this_backup_id, context):
         while True:
-            if len(self.newOps[this_backup_id.backup_id]) > 0:
+            if this_backup_id.backup_id in self.newOps and len(self.newOps[this_backup_id.backup_id]) > 0:
                 yield chat_pb2.Operation(opLst=self.newOps[this_backup_id.backup_id].pop(0))
 
     ## Non-RPC server-side snapshots
