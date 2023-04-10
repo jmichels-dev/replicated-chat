@@ -8,6 +8,7 @@ import chat_pb2_grpc
 import helpers_grpc
 import constants
 import primary
+import csv
 
 # Listens for messages from primary server's KeepAlive response stream
 def keepalive_listen(responseStream, this_backup_id):
@@ -45,7 +46,9 @@ def log_ops(opResponseStream, backup_clientDict, server_id):
     while True:
         try:
             nextOp = next(opResponseStream)
-            helpers_grpc.logOp(nextOp, server_id)
+            with open('commit_log_' + str(server_id) + '.csv', 'a', newline = '') as commitlog:
+                rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
+                rowwriter.writerow(nextOp)
         except:
             pass
 
@@ -76,8 +79,6 @@ def run(server_id, client_id):
             keepalive_listen(responseStream, server_id)
             time.sleep(constants.HEARTBEAT_INTERVAL)
             
-
-
 if __name__ == '__main__':
     # Checks for correct number of args
     if len(sys.argv) != 3:

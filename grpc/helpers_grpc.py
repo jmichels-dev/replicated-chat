@@ -1,7 +1,6 @@
 import csv
 
 opsDict = {}
-SERVERNO = -1
 
 ## Used in client
 # TODO: Unit test
@@ -36,7 +35,7 @@ def addUser(username, clientDict, newOps):
     # If username is valid, create new user in userDict
     clientDict[username] = [True, []]
     operation = ['ADD', str(username)]
-    backupOp(op, newOps)
+    backupOp(operation, newOps)
     logOp(operation)
     return (False, "")
 
@@ -90,7 +89,7 @@ def sendMsg(sender, recipient, message, clientDict, newOps):
         # Enqueue the message
         clientDict[recipient][1].append(recipientMsg)
         operation = ["SEND", sender, message, recipient]
-        backupOp(op, newOps)
+        backupOp(operation, newOps)
         logOp(operation)
         return senderNote
     except:
@@ -100,7 +99,7 @@ def sendMsg(sender, recipient, message, clientDict, newOps):
 def sendUserlist(wildcard, clientDict, newOps):
     allUsers, matches = list(clientDict.keys()), list(clientDict.keys())
     operation = ["LIST", wildcard]
-    backupOp(op, newOps)
+    backupOp(operation, newOps)
     logOp(operation)
 
     # return list of qualifying users
@@ -137,9 +136,9 @@ def sendUserlist(wildcard, clientDict, newOps):
     userListMsg += "---------------\n"
     return userListMsg
 
-def logOp(op, this_serverno=SERVERNO):
-    if this_serverno != -1:
-        with open('commit_log_' + str(this_serverno) + '.csv', 'a', newline = '') as commitlog:
+def logOp(op):
+    if SERVERNO != -1:
+        with open('commit_log_' + str(SERVERNO) + '.csv', 'a', newline = '') as commitlog:
             rowwriter = csv.writer(commitlog, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL)
             rowwriter.writerow(op)
     else:
