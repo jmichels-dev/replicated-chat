@@ -4,7 +4,7 @@ import logging
 import time
 import threading
 import csv
-
+import rsa
 import grpc
 import chat_pb2
 import chat_pb2_grpc
@@ -17,7 +17,7 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
     def __init__(self, server_id, servicer_lock):
         super(ChatServicer, self).__init__()
         self.server_id = server_id
-        # {username : [loggedOnBool, [messageQueue]]}
+        # {username : [loggedOnBool, [messageQueue], publicKey]} 
         self.clientDict = {}
         # Commit log ops that have not yet been sent to backups. Key is id of backup, value is list of ops.
         self.newOps = {}
@@ -29,15 +29,21 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
     ## Client-server RPCs
     def SignInExisting(self, username, context):
         eFlag, msg = helpers_grpc.signInExisting(username.name, self.clientDict, self.newOps, True)
-        return chat_pb2.Unreads(errorFlag=eFlag, unreads=msg)
+        return chat_pb2.Unreads(errorFlag=eFlag, unreads=msg, privateKey=[])
     
     def AddUser(self, username, context):
-        eFlag, msg = helpers_grpc.addUser(username.name, self.clientDict, self.newOps, True)
-        return chat_pb2.Unreads(errorFlag=eFlag, unreads=msg)
+        pubkey, privkey = rsa.newkeys(512)
+        privkeyList = [privkey.n, privkey.e, privkey.d, privkey.p, privkey.q]
+        privkeyList = [str(x) for x in privkeyList]
+        eFlag, msg = helpers_grpc.addUser(username.name, self.clientDict,  self.newOps, True, pubkey)
+        return chat_pb2.Unreads(errorFlag=eFlag, unreads=msg, privateKey=privkeyList)
 
     def Send(self, sendRequest, context):
+        # *** ENCRYPT USING RECEIVER'S PUBLIC KEY HERE ***
+        encrypted_msg = sendRequest.sentMsg.msg.encode('utf8')
+        encrypted_msg = rsa.encrypt(encrypted_msg, self.clientDict[sendRequest.recipient.name][2])
         response = helpers_grpc.sendMsg(sendRequest.sender.name, sendRequest.recipient.name, 
-                                        sendRequest.sentMsg.msg, self.clientDict, self.newOps, True)
+                                        encrypted_msg, self.clientDict, self.newOps, True)
         return chat_pb2.Payload(msg=response)
 
     # usernameStream only comes from logged-in user
@@ -46,7 +52,8 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
             # If any messages are queued
             if len(self.clientDict[username.name][1]) > 0:
                 # Yield first message
-                yield chat_pb2.Payload(msg=self.clientDict[username.name][1].pop(0))
+                messageInfo = self.clientDict[username.name][1].pop(0)
+                yield chat_pb2.EncryptedPayload(sender=messageInfo[0], encryptedMsg=messageInfo[1])
             # Stop stream if user logs out
             if self.clientDict[username.name][0] == False:
                 break

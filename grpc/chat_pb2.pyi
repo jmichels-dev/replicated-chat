@@ -5,6 +5,14 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class EncryptedPayload(_message.Message):
+    __slots__ = ["encryptedMsg", "sender"]
+    ENCRYPTEDMSG_FIELD_NUMBER: _ClassVar[int]
+    SENDER_FIELD_NUMBER: _ClassVar[int]
+    encryptedMsg: bytes
+    sender: str
+    def __init__(self, sender: _Optional[str] = ..., encryptedMsg: _Optional[bytes] = ...) -> None: ...
+
 class KeepAliveRequest(_message.Message):
     __slots__ = ["backup_id"]
     BACKUP_ID_FIELD_NUMBER: _ClassVar[int]
@@ -42,12 +50,14 @@ class SendRequest(_message.Message):
     def __init__(self, sender: _Optional[_Union[Username, _Mapping]] = ..., recipient: _Optional[_Union[Username, _Mapping]] = ..., sentMsg: _Optional[_Union[Payload, _Mapping]] = ...) -> None: ...
 
 class Unreads(_message.Message):
-    __slots__ = ["errorFlag", "unreads"]
+    __slots__ = ["errorFlag", "privateKey", "unreads"]
     ERRORFLAG_FIELD_NUMBER: _ClassVar[int]
+    PRIVATEKEY_FIELD_NUMBER: _ClassVar[int]
     UNREADS_FIELD_NUMBER: _ClassVar[int]
     errorFlag: bool
+    privateKey: _containers.RepeatedScalarFieldContainer[str]
     unreads: str
-    def __init__(self, errorFlag: bool = ..., unreads: _Optional[str] = ...) -> None: ...
+    def __init__(self, errorFlag: bool = ..., unreads: _Optional[str] = ..., privateKey: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class Username(_message.Message):
     __slots__ = ["name"]

@@ -24,13 +24,13 @@ def existingOrNew():
 
 ## Used in server
 # Create new user with input username. Returns (errorFlag, errorMsg).
-def addUser(username, clientDict, newOps, first):
+def addUser(username, clientDict, newOps, first, publicKey):
     # If username is already taken, notify user and request new username
     if username in clientDict:
         return (True, "This username is already taken by another account. Please " +
                       "try again with a different username.\n")
     # If username is valid, create new user in userDict
-    clientDict[username] = [True, []]
+    clientDict[username] = [True, [], publicKey]
     operation = ['ADD', str(username)]
     if first:
         backupOp(operation, newOps)
@@ -81,7 +81,7 @@ def sendMsg(sender, recipient, message, clientDict, newOps, first):
 
     # Send message to recipient
     try:
-        recipientMsg = "\nFrom " + sender + ": " + message + "\n"
+        recipientMsg = [sender, message]
         senderNote = "Message sent.\n"
         # print("payload is: " + payload)
 

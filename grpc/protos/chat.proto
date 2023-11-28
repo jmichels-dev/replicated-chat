@@ -1,3 +1,5 @@
+// python -m grpc_tools.protoc --proto_path=/Users/joshuamichels/Documents/CS105/encrypted-chat/grpc/protos --python_out=. --pyi_out=. --grpc_python_out=. /Users/joshuamichels/Documents/CS105/encrypted-chat/grpc/protos/chat.proto
+
 syntax = "proto3";
 
 service Chat {
@@ -8,7 +10,7 @@ service Chat {
     // Sends message to recipient with Username
     rpc Send(SendRequest) returns (Payload) {}
     // Response stream for client to receive messages from server
-    rpc Listen(Username) returns (stream Payload) {}
+    rpc Listen(Username) returns (stream EncryptedPayload) {}
     // Lists all usernames that match the optional text wildcard
     rpc List(Payload) returns (Payload) {}
     // Logs out user and returns a confirmation response message
@@ -31,7 +33,8 @@ message Username {
 // Else, unreads is a list of unread messages.
 message Unreads {
     bool errorFlag = 1;
-    string unreads = 2; 
+    string unreads = 2;
+    repeated string privateKey = 3; 
 }
 
 // If sent from the sender's client to the server, Payload is a message to send.
@@ -40,6 +43,12 @@ message Unreads {
 // Can also be error message or logout/delete confirmation.
 message Payload {
     string msg = 1;
+}
+
+// For sending encrypted messages
+message EncryptedPayload {
+    string sender = 1;
+    bytes encryptedMsg = 2;
 }
 
 message SendRequest {

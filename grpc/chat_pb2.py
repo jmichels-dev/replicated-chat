@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\"\x18\n\x08Username\x12\x0c\n\x04name\x18\x01 \x01(\t\"-\n\x07Unreads\x12\x11\n\terrorFlag\x18\x01 \x01(\x08\x12\x0f\n\x07unreads\x18\x02 \x01(\t\"\x16\n\x07Payload\x12\x0b\n\x03msg\x18\x01 \x01(\t\"a\n\x0bSendRequest\x12\x19\n\x06sender\x18\x01 \x01(\x0b\x32\t.Username\x12\x1c\n\trecipient\x18\x02 \x01(\x0b\x32\t.Username\x12\x19\n\x07sentMsg\x18\x03 \x01(\x0b\x32\x08.Payload\"%\n\x10KeepAliveRequest\x12\x11\n\tbackup_id\x18\x01 \x01(\x05\";\n\x11KeepAliveResponse\x12\x12\n\nprimary_id\x18\x01 \x01(\x05\x12\x12\n\nbackup_ids\x18\x02 \x03(\x05\"\x1a\n\tOperation\x12\r\n\x05opLst\x18\x01 \x03(\t2\xe1\x02\n\x04\x43hat\x12\'\n\x0eSignInExisting\x12\t.Username\x1a\x08.Unreads\"\x00\x12 \n\x07\x41\x64\x64User\x12\t.Username\x1a\x08.Unreads\"\x00\x12 \n\x04Send\x12\x0c.SendRequest\x1a\x08.Payload\"\x00\x12!\n\x06Listen\x12\t.Username\x1a\x08.Payload\"\x00\x30\x01\x12\x1c\n\x04List\x12\x08.Payload\x1a\x08.Payload\"\x00\x12\x1f\n\x06Logout\x12\t.Username\x1a\x08.Payload\"\x00\x12\x1f\n\x06\x44\x65lete\x12\t.Username\x1a\x08.Payload\"\x00\x12\x39\n\nHeartbeats\x12\x11.KeepAliveRequest\x1a\x12.KeepAliveResponse\"\x00(\x01\x30\x01\x12.\n\tBackupOps\x12\x11.KeepAliveRequest\x1a\n.Operation\"\x00\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\"\x18\n\x08Username\x12\x0c\n\x04name\x18\x01 \x01(\t\"A\n\x07Unreads\x12\x11\n\terrorFlag\x18\x01 \x01(\x08\x12\x0f\n\x07unreads\x18\x02 \x01(\t\x12\x12\n\nprivateKey\x18\x03 \x03(\t\"\x16\n\x07Payload\x12\x0b\n\x03msg\x18\x01 \x01(\t\"8\n\x10\x45ncryptedPayload\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x14\n\x0c\x65ncryptedMsg\x18\x02 \x01(\x0c\"a\n\x0bSendRequest\x12\x19\n\x06sender\x18\x01 \x01(\x0b\x32\t.Username\x12\x1c\n\trecipient\x18\x02 \x01(\x0b\x32\t.Username\x12\x19\n\x07sentMsg\x18\x03 \x01(\x0b\x32\x08.Payload\"%\n\x10KeepAliveRequest\x12\x11\n\tbackup_id\x18\x01 \x01(\x05\";\n\x11KeepAliveResponse\x12\x12\n\nprimary_id\x18\x01 \x01(\x05\x12\x12\n\nbackup_ids\x18\x02 \x03(\x05\"\x1a\n\tOperation\x12\r\n\x05opLst\x18\x01 \x03(\t2\xea\x02\n\x04\x43hat\x12\'\n\x0eSignInExisting\x12\t.Username\x1a\x08.Unreads\"\x00\x12 \n\x07\x41\x64\x64User\x12\t.Username\x1a\x08.Unreads\"\x00\x12 \n\x04Send\x12\x0c.SendRequest\x1a\x08.Payload\"\x00\x12*\n\x06Listen\x12\t.Username\x1a\x11.EncryptedPayload\"\x00\x30\x01\x12\x1c\n\x04List\x12\x08.Payload\x1a\x08.Payload\"\x00\x12\x1f\n\x06Logout\x12\t.Username\x1a\x08.Payload\"\x00\x12\x1f\n\x06\x44\x65lete\x12\t.Username\x1a\x08.Payload\"\x00\x12\x39\n\nHeartbeats\x12\x11.KeepAliveRequest\x1a\x12.KeepAliveResponse\"\x00(\x01\x30\x01\x12.\n\tBackupOps\x12\x11.KeepAliveRequest\x1a\n.Operation\"\x00\x30\x01\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chat_pb2', globals())
@@ -23,17 +23,19 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _USERNAME._serialized_start=14
   _USERNAME._serialized_end=38
   _UNREADS._serialized_start=40
-  _UNREADS._serialized_end=85
-  _PAYLOAD._serialized_start=87
-  _PAYLOAD._serialized_end=109
-  _SENDREQUEST._serialized_start=111
-  _SENDREQUEST._serialized_end=208
-  _KEEPALIVEREQUEST._serialized_start=210
-  _KEEPALIVEREQUEST._serialized_end=247
-  _KEEPALIVERESPONSE._serialized_start=249
-  _KEEPALIVERESPONSE._serialized_end=308
-  _OPERATION._serialized_start=310
-  _OPERATION._serialized_end=336
-  _CHAT._serialized_start=339
-  _CHAT._serialized_end=692
+  _UNREADS._serialized_end=105
+  _PAYLOAD._serialized_start=107
+  _PAYLOAD._serialized_end=129
+  _ENCRYPTEDPAYLOAD._serialized_start=131
+  _ENCRYPTEDPAYLOAD._serialized_end=187
+  _SENDREQUEST._serialized_start=189
+  _SENDREQUEST._serialized_end=286
+  _KEEPALIVEREQUEST._serialized_start=288
+  _KEEPALIVEREQUEST._serialized_end=325
+  _KEEPALIVERESPONSE._serialized_start=327
+  _KEEPALIVERESPONSE._serialized_end=386
+  _OPERATION._serialized_start=388
+  _OPERATION._serialized_end=414
+  _CHAT._serialized_start=417
+  _CHAT._serialized_end=779
 # @@protoc_insertion_point(module_scope)

@@ -2,7 +2,8 @@ import logging
 import sys
 from _thread import *
 import time
-
+import csv
+import rsa
 import grpc
 import chat_pb2
 import chat_pb2_grpc
@@ -31,7 +32,16 @@ def signinLoop(stub):
             # Remove whitespace
             username = username.strip().lower()
             unreadsOrError = stub.AddUser(chat_pb2.Username(name=username))
-            eFlag, msg = unreadsOrError.errorFlag, unreadsOrError.unreads
+            eFlag, msg, privkeyList = unreadsOrError.errorFlag, unreadsOrError.unreads, unreadsOrError.privateKey
+            
+            # store user's private key 
+            csv_file_path = f"{username}_private_key.csv"
+            with open(csv_file_path, "w", newline="") as csv_file:
+                csv_writer = csv.writer(csv_file)
+                for element in privkeyList:
+                    csv_writer.writerow([element])
+            
+
     if eFlag:
         print(msg)
         return signinLoop(stub)
@@ -109,7 +119,23 @@ def listen_thread(username, responseStream):
     while True:
         try:
             response = next(responseStream)
-            print(response.msg)
+            csv_file_name = f"{username}_private_key.csv"
+            # # File reading and creating a new list
+            new_list = []
+            with open(csv_file_name, "r") as csv_file:
+                csv_reader = csv.reader(csv_file)
+                for row in csv_reader:
+                    new_list.append(row[0])
+            new_list = [int(x) for x in new_list]
+            privkey = rsa.PrivateKey(new_list[0], new_list[1], new_list[2], new_list[3], new_list[4])
+            print(f"privkey: {privkey}")
+            try:
+                decrypted_msg = rsa.decrypt(response.encryptedMsg, privkey)
+            except Exception as error:
+                # handle the exception
+                print("An exception occurred:", type(error).__name__, "–", error)
+            message = response.sender + ": " + decrypted_msg.decode("utf8")
+            print(message)
         except:
             return
 
