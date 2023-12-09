@@ -31,7 +31,7 @@ def addUser(username, clientDict, newOps, first, publicKey):
                       "try again with a different username.\n")
     # If username is valid, create new user in userDict
     clientDict[username] = [True, [], publicKey]
-    operation = ['ADD', str(username)]
+    operation = ['ADD', str(username), str(publicKey.n), str(publicKey.e)]
     if first:
         backupOp(operation, newOps)
         logOp(operation)
@@ -45,7 +45,7 @@ def signInExisting(username, clientDict, newOps, first):
         # If user is already logged in, return error
         if userAttributes[0] == True:
             return (True, "This user is already logged in on another device. Please " +
-                          "log out in the other location and try again.\n")
+                          "log out in the other location and try again.\n", [], [])
         # Set user as logged in and update socket object
         else:
             userAttributes[0] = True
@@ -56,15 +56,18 @@ def signInExisting(username, clientDict, newOps, first):
     except:
         # If account does not exist
         return (True, "No users exist with this username. Please double check that you typed correctly " +
-                      "or create a new account with this username.\n")
+                      "or create a new account with this username.\n", [], [])
     unreadsLst = userAttributes[1]
+    senders = [msg[0] for msg in unreadsLst]
+    encryptedLst = [msg[1] for msg in unreadsLst]
     unreadsNum = str(len(unreadsLst))
     unreads = "You have " + unreadsNum + " unread messages:\n\n"
-    for msg in unreadsLst:
-        unreads += msg + "\n\n"
+    # *** TODO: ADD ENCRYPTED MESSAGES TO UNREADS BEFORE SENDING TO CLIENT ***
+    # for msg in unreadsLst:
+    #     unreads += msg + "\n\n"
     # Reset unreads queue
     userAttributes[1] = []
-    return (False, unreads)
+    return (False, unreads, encryptedLst, senders)
     
 # Returns error message or sender confirmation & enqueues message for recipient
 def sendMsg(sender, recipient, message, clientDict, newOps, first):

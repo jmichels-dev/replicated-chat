@@ -34,7 +34,9 @@ message Username {
 message Unreads {
     bool errorFlag = 1;
     string unreads = 2;
-    repeated string privateKey = 3; 
+    repeated string privateKey = 3;
+    repeated bytes encryptedMsg = 4;
+    repeated string senders = 5; 
 }
 
 // If sent from the sender's client to the server, Payload is a message to send.

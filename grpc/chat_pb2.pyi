@@ -50,14 +50,18 @@ class SendRequest(_message.Message):
     def __init__(self, sender: _Optional[_Union[Username, _Mapping]] = ..., recipient: _Optional[_Union[Username, _Mapping]] = ..., sentMsg: _Optional[_Union[Payload, _Mapping]] = ...) -> None: ...
 
 class Unreads(_message.Message):
-    __slots__ = ["errorFlag", "privateKey", "unreads"]
+    __slots__ = ["encryptedMsg", "errorFlag", "privateKey", "senders", "unreads"]
+    ENCRYPTEDMSG_FIELD_NUMBER: _ClassVar[int]
     ERRORFLAG_FIELD_NUMBER: _ClassVar[int]
     PRIVATEKEY_FIELD_NUMBER: _ClassVar[int]
+    SENDERS_FIELD_NUMBER: _ClassVar[int]
     UNREADS_FIELD_NUMBER: _ClassVar[int]
+    encryptedMsg: _containers.RepeatedScalarFieldContainer[bytes]
     errorFlag: bool
     privateKey: _containers.RepeatedScalarFieldContainer[str]
+    senders: _containers.RepeatedScalarFieldContainer[str]
     unreads: str
-    def __init__(self, errorFlag: bool = ..., unreads: _Optional[str] = ..., privateKey: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, errorFlag: bool = ..., unreads: _Optional[str] = ..., privateKey: _Optional[_Iterable[str]] = ..., encryptedMsg: _Optional[_Iterable[bytes]] = ..., senders: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class Username(_message.Message):
     __slots__ = ["name"]

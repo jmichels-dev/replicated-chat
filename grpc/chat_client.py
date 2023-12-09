@@ -22,7 +22,7 @@ def signinLoop(stub):
             # Remove whitespace
             username = username.strip().lower()
             unreadsOrError = stub.SignInExisting(chat_pb2.Username(name=username))
-            eFlag, msg = unreadsOrError.errorFlag, unreadsOrError.unreads
+            eFlag, msg, encryptedMsgs, senders = unreadsOrError.errorFlag, unreadsOrError.unreads, unreadsOrError.encryptedMsg, unreadsOrError.senders
     # Try to sign in new user
     else:
         print("\nPlease create a new username.")
@@ -32,7 +32,7 @@ def signinLoop(stub):
             # Remove whitespace
             username = username.strip().lower()
             unreadsOrError = stub.AddUser(chat_pb2.Username(name=username))
-            eFlag, msg, privkeyList = unreadsOrError.errorFlag, unreadsOrError.unreads, unreadsOrError.privateKey
+            eFlag, msg, privkeyList, encryptedMsgs = unreadsOrError.errorFlag, unreadsOrError.unreads, unreadsOrError.privateKey, unreadsOrError.encryptedMsg
             
             # store user's private key 
             csv_file_path = f"{username}_private_key.csv"
@@ -47,7 +47,19 @@ def signinLoop(stub):
         return signinLoop(stub)
     else:
         print("\nCongratulations! You have successfully logged in to your account.\n")
-        print(msg)
+        # *** TODO: DECRYPT MESSAGES BEFORE PRINTING THEM ***
+        csv_file_name = f"{username}_private_key.csv"
+        # # File reading and creating a new list
+        new_list = []
+        with open(csv_file_name, "r") as csv_file:
+            csv_reader = csv.reader(csv_file)
+            for row in csv_reader:
+                new_list.append(row[0])
+        new_list = [int(x) for x in new_list]
+        privkey = rsa.PrivateKey(new_list[0], new_list[1], new_list[2], new_list[3], new_list[4])
+        for i, msg in enumerate(encryptedMsgs):
+            decrypted_msg = rsa.decrypt(msg, privkey)
+            print(senders[i] + ": " + decrypted_msg.decode("utf8"))
         return username
 
 # Parse input from command line and do the correct action. Loops until logout or delete.
@@ -128,7 +140,6 @@ def listen_thread(username, responseStream):
                     new_list.append(row[0])
             new_list = [int(x) for x in new_list]
             privkey = rsa.PrivateKey(new_list[0], new_list[1], new_list[2], new_list[3], new_list[4])
-            print(f"privkey: {privkey}")
             try:
                 decrypted_msg = rsa.decrypt(response.encryptedMsg, privkey)
             except Exception as error:

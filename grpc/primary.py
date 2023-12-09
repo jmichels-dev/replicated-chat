@@ -28,15 +28,15 @@ class ChatServicer(chat_pb2_grpc.ChatServicer):
 
     ## Client-server RPCs
     def SignInExisting(self, username, context):
-        eFlag, msg = helpers_grpc.signInExisting(username.name, self.clientDict, self.newOps, True)
-        return chat_pb2.Unreads(errorFlag=eFlag, unreads=msg, privateKey=[])
+        eFlag, msg, encryptedMsgs, senders = helpers_grpc.signInExisting(username.name, self.clientDict, self.newOps, True)
+        return chat_pb2.Unreads(errorFlag=eFlag, unreads=msg, privateKey=[], encryptedMsg=encryptedMsgs, senders=senders)
     
     def AddUser(self, username, context):
         pubkey, privkey = rsa.newkeys(512)
         privkeyList = [privkey.n, privkey.e, privkey.d, privkey.p, privkey.q]
         privkeyList = [str(x) for x in privkeyList]
         eFlag, msg = helpers_grpc.addUser(username.name, self.clientDict,  self.newOps, True, pubkey)
-        return chat_pb2.Unreads(errorFlag=eFlag, unreads=msg, privateKey=privkeyList)
+        return chat_pb2.Unreads(errorFlag=eFlag, unreads=msg, privateKey=privkeyList, encryptedMsg=[], senders=[])
 
     def Send(self, sendRequest, context):
         # *** ENCRYPT USING RECEIVER'S PUBLIC KEY HERE ***
@@ -153,15 +153,16 @@ def loadSnapshot(filename, clientDict):
     with open(filename, newline='') as snapshot:
         rowreader = csv.reader(snapshot, delimiter=" ", quotechar="|")
         for row in rowreader:
+            print(row)
             temp = row[2].strip('][').split(', ')
             if temp != ['']:
                 for i in range(len(temp)):
                     temp[i] = temp[i].replace("'", '')
                     temp[i] = temp[i][2:-2]
                 # False since if server crashes, users will be disconnected regardless of connection status at crash time
-                clientDict[row[0]] = [False, temp]
+                clientDict[row[0]] = [False, temp, row[3]]
             else:
-                clientDict[row[0]] = [False, []]
+                clientDict[row[0]] = [False, [], row[3]]
     print("snapshot loaded: \n")
     print(clientDict)
 
@@ -178,7 +179,7 @@ def loadCommitLog(filename, clientDict, newOps):
         for row in rowreader:
             op = row[0]
             if op == "ADD":
-                helpers_grpc.addUser(row[1], clientDict, newOps, False)
+                helpers_grpc.addUser(row[1], clientDict, newOps, False, rsa.PublicKey(row[2], row[3]))
             elif op == "LOGIN":
                 helpers_grpc.signInExisting(row[1], clientDict, newOps, False)
             elif op == "SEND":
